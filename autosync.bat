@@ -1,3 +1,3 @@
 git add .
-git commit -m "Auto update"
+git commit -m "Leetcode Problem Solutions"
 git push
