@@ -68,3 +68,50 @@ GROUP BY c.name, c.customer_id
 HAVING COUNT(*) >= 2
 ORDER BY SUM(o.amount) DESC
 
+Day 1 - Question 2: Employee Salary Update
+Difficulty: Easy-Medium
+Topics: UPDATE, SET, CASE, WHERE
+
+Question
+--------
+You have the following employees table:
+
++--------+-------+------------+--------+------------+
+| emp_id | name  | department | salary | experience |
++--------+-------+------------+--------+------------+
+| 1      | Rahul | Backend    | 50000  | 2          |
+| 2      | Priya | Backend    | 80000  | 5          |
+| 3      | Amit  | QA         | 40000  | 1          |
+| 4      | Sneha | Backend    | 60000  | 3          |
+| 5      | Karan | QA         | 70000  | 4          |
+| 6      | Riya  | DevOps     | 90000  | 6          |
++--------+-------+------------+--------+------------+
+
+Task:
+Write one SQL UPDATE statement that:
+1. Increases salary by 20% for Backend employees having 3 or more years of experience.
+2. Increases salary by 10% for Backend employees having less than 3 years of experience.
+3. Does not modify employees from other departments.
+4. Performs the entire update using one SQL statement.
+
+Expected Table After Update
+---------------------------
++-------+------------+--------+
+| name  | department | salary |
++-------+------------+--------+
+| Rahul | Backend    | 55000  |
+| Priya | Backend    | 96000  |
+| Amit  | QA         | 40000  |
+| Sneha | Backend    | 72000  |
+| Karan | QA         | 70000  |
+| Riya  | DevOps     | 90000  |
++-------+------------+--------+
+
+My SQL Query
+------------
+UPDATE employees 
+SET salary = CASE 
+       WHEN experience >= 3 THEN salary + (salary * 0.2)
+       ELSE salary + (salary * 0.1)
+END
+WHERE department = 'Backend'
