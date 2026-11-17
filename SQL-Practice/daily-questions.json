@@ -489,6 +489,523 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-18",
+      "day": 2,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Warehouse Restock Queue",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "SELECT",
+            "WHERE",
+            "Computed Columns",
+            "ORDER BY"
+          ],
+          "intro": "The products table contains current stock and the minimum reorder level for each product. Only active products should appear in the restock queue.",
+          "tables": [
+            {
+              "name": "products",
+              "headers": [
+                "product_id",
+                "product_name",
+                "category",
+                "stock",
+                "reorder_level",
+                "is_active"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Keyboard",
+                  "Accessories",
+                  5,
+                  10,
+                  1
+                ],
+                [
+                  2,
+                  "Mouse",
+                  "Accessories",
+                  12,
+                  10,
+                  1
+                ],
+                [
+                  3,
+                  "Monitor",
+                  "Electronics",
+                  2,
+                  5,
+                  1
+                ],
+                [
+                  4,
+                  "Webcam",
+                  "Electronics",
+                  0,
+                  8,
+                  1
+                ],
+                [
+                  5,
+                  "USB Hub",
+                  "Accessories",
+                  3,
+                  5,
+                  0
+                ],
+                [
+                  6,
+                  "Laptop",
+                  "Electronics",
+                  14,
+                  10,
+                  1
+                ],
+                [
+                  7,
+                  "Headphones",
+                  "Electronics",
+                  4,
+                  4,
+                  1
+                ],
+                [
+                  8,
+                  "Charger",
+                  "Accessories",
+                  1,
+                  5,
+                  1
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write a SELECT query to list products that need restocking.",
+            "Include only active products (is_active = 1) whose stock is strictly below reorder_level.",
+            "Display product_name, stock, and a computed column named shortage, equal to reorder_level - stock.",
+            "Order by shortage from highest to lowest. When shortages tie, order by product_name alphabetically."
+          ],
+          "output": {
+            "headers": [
+              "product_name",
+              "stock",
+              "shortage"
+            ],
+            "rows": [
+              [
+                "Webcam",
+                0,
+                8
+              ],
+              [
+                "Keyboard",
+                5,
+                5
+              ],
+              [
+                "Charger",
+                1,
+                4
+              ],
+              [
+                "Monitor",
+                2,
+                3
+              ]
+            ]
+          },
+          "hint": "Filter active items and compare stock against reorder_level in WHERE. Give the difference an alias, then sort using that alias.",
+          "solution": "SELECT product_name, stock, reorder_level - stock AS shortage\nFROM products\nWHERE is_active = 1 AND stock < reorder_level\nORDER BY shortage DESC, product_name ASC;",
+          "steps": [
+            "Look at each product's is_active flag. Remove USB Hub because it is inactive.",
+            "Compare stock with reorder_level for the remaining products. Mouse, Laptop and Headphones are not below their reorder levels.",
+            "Calculate shortage for the four remaining products: Keyboard 10-5=5, Monitor 5-2=3, Webcam 8-0=8, Charger 5-1=4.",
+            "Sort shortage descending to get Webcam, Keyboard, Charger, then Monitor. Product name is the tie-breaker if equal shortages occur."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bFROM\\s+products\\b",
+              "error": "Use the products table."
+            },
+            {
+              "pattern": "\\bWHERE\\b",
+              "error": "Filter the products before sorting."
+            },
+            {
+              "pattern": "\\bis_active\\s*=\\s*(?:1|TRUE)\\b",
+              "error": "Include only active products."
+            },
+            {
+              "pattern": "\\bstock\\s*<\\s*reorder_level\\b",
+              "error": "Only include products whose stock is below the reorder level."
+            },
+            {
+              "pattern": "\\breorder_level\\s*-\\s*stock\\s+AS\\s+shortage\\b",
+              "error": "Calculate shortage as reorder_level - stock and name it shortage."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Sort the restock queue by shortage descending and product_name ascending."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Students Without a Passed Exam",
+          "difficulty": "Medium",
+          "topics": [
+            "SELECT",
+            "Correlated Subquery",
+            "NOT EXISTS",
+            "ORDER BY"
+          ],
+          "intro": "Every student is listed in students. The exam_attempts table records zero or more exam attempts per student. A student may have only failures, at least one pass, or no attempts at all.",
+          "tables": [
+            {
+              "name": "students",
+              "headers": [
+                "student_id",
+                "student_name"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Anaya"
+                ],
+                [
+                  2,
+                  "Bharat"
+                ],
+                [
+                  3,
+                  "Charu"
+                ],
+                [
+                  4,
+                  "Dev"
+                ],
+                [
+                  5,
+                  "Esha"
+                ],
+                [
+                  6,
+                  "Farhan"
+                ]
+              ]
+            },
+            {
+              "name": "exam_attempts",
+              "headers": [
+                "attempt_id",
+                "student_id",
+                "subject",
+                "result"
+              ],
+              "rows": [
+                [
+                  101,
+                  1,
+                  "DBMS",
+                  "Pass"
+                ],
+                [
+                  102,
+                  1,
+                  "OS",
+                  "Fail"
+                ],
+                [
+                  103,
+                  2,
+                  "DBMS",
+                  "Fail"
+                ],
+                [
+                  104,
+                  2,
+                  "CN",
+                  "Fail"
+                ],
+                [
+                  105,
+                  3,
+                  "OS",
+                  "Pass"
+                ],
+                [
+                  106,
+                  4,
+                  "DBMS",
+                  "Fail"
+                ],
+                [
+                  107,
+                  4,
+                  "OS",
+                  "Pass"
+                ],
+                [
+                  108,
+                  6,
+                  "CN",
+                  "Fail"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a correlated NOT EXISTS subquery to find students who have never passed any exam.",
+            "A student with no exam attempts must also appear in the result.",
+            "Display student_id and student_name.",
+            "Order results alphabetically by student_name."
+          ],
+          "output": {
+            "headers": [
+              "student_id",
+              "student_name"
+            ],
+            "rows": [
+              [
+                2,
+                "Bharat"
+              ],
+              [
+                5,
+                "Esha"
+              ],
+              [
+                6,
+                "Farhan"
+              ]
+            ]
+          },
+          "hint": "For each student, ask whether there exists a matching exam_attempts row with result = 'Pass'. Keep the student when no such row exists.",
+          "solution": "SELECT s.student_id, s.student_name\nFROM students AS s\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM exam_attempts AS a\n    WHERE a.student_id = s.student_id\n      AND a.result = 'Pass'\n)\nORDER BY s.student_name ASC;",
+          "steps": [
+            "Start with all six rows in students; the outer query considers them one at a time.",
+            "For Anaya, the subquery finds a DBMS Pass, so NOT EXISTS is false and Anaya is removed.",
+            "For Bharat, both attempts are Fail. The subquery finds no Pass, so Bharat remains.",
+            "For Charu and Dev, each has a Pass and is removed.",
+            "Esha has no attempt rows at all. There is no Pass, so NOT EXISTS is true and Esha remains.",
+            "Farhan has one Fail and no Pass, so Farhan remains.",
+            "ORDER BY student_name ASC yields Bharat, Esha, and Farhan."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bFROM\\s+students\\b",
+              "error": "Start from the students table."
+            },
+            {
+              "pattern": "\\bNOT\\s+EXISTS\\s*\\(",
+              "error": "Use a NOT EXISTS correlated subquery."
+            },
+            {
+              "pattern": "\\bFROM\\s+exam_attempts\\b",
+              "error": "Check the exam_attempts table."
+            },
+            {
+              "pattern": "\\bresult\\s*=\\s*'Pass'",
+              "error": "Check whether a student has a Pass attempt."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Sort by student_name."
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Latest Two Payments Per Customer",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "ROW_NUMBER",
+            "PARTITION BY",
+            "Window Functions"
+          ],
+          "intro": "Each row in payments represents a separate payment. A customer can have more than two payments or only one payment, and multiple payments can happen on the same date.",
+          "tables": [
+            {
+              "name": "payments",
+              "headers": [
+                "payment_id",
+                "customer_id",
+                "payment_date",
+                "amount"
+              ],
+              "rows": [
+                [
+                  101,
+                  1,
+                  "2026-11-02",
+                  600
+                ],
+                [
+                  102,
+                  1,
+                  "2026-11-10",
+                  1200
+                ],
+                [
+                  103,
+                  1,
+                  "2026-11-10",
+                  800
+                ],
+                [
+                  201,
+                  2,
+                  "2026-11-01",
+                  500
+                ],
+                [
+                  202,
+                  2,
+                  "2026-11-15",
+                  750
+                ],
+                [
+                  301,
+                  3,
+                  "2026-11-06",
+                  250
+                ],
+                [
+                  401,
+                  4,
+                  "2026-11-07",
+                  100
+                ],
+                [
+                  402,
+                  4,
+                  "2026-11-07",
+                  200
+                ],
+                [
+                  403,
+                  4,
+                  "2026-11-09",
+                  300
+                ],
+                [
+                  404,
+                  4,
+                  "2026-11-11",
+                  400
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Find the two most recent payments for each customer using ROW_NUMBER() and a CTE (WITH clause).",
+            "Within each customer, treat a later payment_date as newer. If two payments share the same date, treat the higher payment_id as newer.",
+            "Customers with fewer than two payments should still appear with all their payments.",
+            "Display customer_id, payment_id, payment_date, and amount; do not display the row number.",
+            "Sort the final result by customer_id ascending, payment_date descending, then payment_id descending."
+          ],
+          "output": {
+            "headers": [
+              "customer_id",
+              "payment_id",
+              "payment_date",
+              "amount"
+            ],
+            "rows": [
+              [
+                1,
+                103,
+                "2026-11-10",
+                800
+              ],
+              [
+                1,
+                102,
+                "2026-11-10",
+                1200
+              ],
+              [
+                2,
+                202,
+                "2026-11-15",
+                750
+              ],
+              [
+                2,
+                201,
+                "2026-11-01",
+                500
+              ],
+              [
+                3,
+                301,
+                "2026-11-06",
+                250
+              ],
+              [
+                4,
+                404,
+                "2026-11-11",
+                400
+              ],
+              [
+                4,
+                403,
+                "2026-11-09",
+                300
+              ]
+            ]
+          },
+          "hint": "In a CTE, use ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY payment_date DESC, payment_id DESC). Then filter the numbered rows in an outer SELECT.",
+          "solution": "WITH ranked_payments AS (\n    SELECT payment_id, customer_id, payment_date, amount,\n           ROW_NUMBER() OVER (\n               PARTITION BY customer_id\n               ORDER BY payment_date DESC, payment_id DESC\n           ) AS rn\n    FROM payments\n)\nSELECT customer_id, payment_id, payment_date, amount\nFROM ranked_payments\nWHERE rn <= 2\nORDER BY customer_id ASC, payment_date DESC, payment_id DESC;",
+          "steps": [
+            "The CTE reads every payment and groups rows into independent partitions by customer_id.",
+            "ROW_NUMBER() sorts each customer's rows by date descending and breaks same-date ties using payment_id descending.",
+            "Customer 1 receives row numbers 1 for payment 103, 2 for 102, and 3 for 101. Payment 103 is first because 103 is higher than 102 on the same date.",
+            "Customer 2 receives row numbers 1 for 202 and 2 for 201. Customer 3 has only payment 301, numbered 1.",
+            "Customer 4 receives row numbers 1 for 404, 2 for 403, 3 for 402, and 4 for 401.",
+            "The outer query keeps row numbers 1 and 2, removes the rn column from display, and sorts the remaining seven rows in the requested order."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bWITH\\b",
+              "error": "Use a CTE (WITH clause)."
+            },
+            {
+              "pattern": "\\bROW_NUMBER\\s*\\(\\s*\\)\\s+OVER\\s*\\(",
+              "error": "Number payments using ROW_NUMBER() OVER (...)."
+            },
+            {
+              "pattern": "\\bPARTITION\\s+BY\\s+customer_id\\b",
+              "error": "Restart numbering for each customer."
+            },
+            {
+              "pattern": "\\bpayment_date\\s+DESC\\b",
+              "error": "Sort by newest payment date first."
+            },
+            {
+              "pattern": "\\bpayment_id\\s+DESC\\b",
+              "error": "For equal dates, order by payment_id descending."
+            },
+            {
+              "pattern": "\\bWHERE\\b",
+              "error": "Filter to the first two row numbers in the outer query."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
