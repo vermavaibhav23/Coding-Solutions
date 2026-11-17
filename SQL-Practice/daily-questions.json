@@ -1,0 +1,494 @@
+{
+  "timezone": "Asia/Kolkata",
+  "sets": [
+    {
+      "date": "2026-11-17",
+      "day": 1,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Customer Order Analysis",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "SELECT",
+            "JOIN",
+            "WHERE",
+            "GROUP BY",
+            "HAVING",
+            "ORDER BY"
+          ],
+          "intro": "You have two tables: customers and orders.",
+          "tables": [
+            {
+              "name": "customers",
+              "headers": [
+                "customer_id",
+                "name"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Asha"
+                ],
+                [
+                  2,
+                  "Kiran"
+                ],
+                [
+                  3,
+                  "Meera"
+                ],
+                [
+                  4,
+                  "Rahul"
+                ],
+                [
+                  5,
+                  "Diya"
+                ]
+              ]
+            },
+            {
+              "name": "orders",
+              "headers": [
+                "order_id",
+                "customer_id",
+                "amount",
+                "status"
+              ],
+              "rows": [
+                [
+                  101,
+                  1,
+                  1200,
+                  "Delivered"
+                ],
+                [
+                  102,
+                  1,
+                  900,
+                  "Cancelled"
+                ],
+                [
+                  103,
+                  1,
+                  1600,
+                  "Delivered"
+                ],
+                [
+                  104,
+                  2,
+                  900,
+                  "Delivered"
+                ],
+                [
+                  105,
+                  2,
+                  700,
+                  "Delivered"
+                ],
+                [
+                  106,
+                  3,
+                  2500,
+                  "Delivered"
+                ],
+                [
+                  107,
+                  4,
+                  600,
+                  "Delivered"
+                ],
+                [
+                  108,
+                  4,
+                  500,
+                  "Delivered"
+                ],
+                [
+                  109,
+                  5,
+                  400,
+                  "Cancelled"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Find customers who have at least 2 Delivered orders.",
+            "Only count orders with amount >= 500.",
+            "Display customer_name, delivered_orders and total_amount.",
+            "Sort by total_amount descending."
+          ],
+          "output": {
+            "headers": [
+              "customer_name",
+              "delivered_orders",
+              "total_amount"
+            ],
+            "rows": [
+              [
+                "Asha",
+                2,
+                2800
+              ],
+              [
+                "Kiran",
+                2,
+                1600
+              ],
+              [
+                "Rahul",
+                2,
+                1100
+              ]
+            ]
+          },
+          "hint": "Join the two tables using customer_id. Filter rows before grouping; use HAVING for the minimum order count.",
+          "solution": "SELECT c.name AS customer_name,\n       COUNT(*) AS delivered_orders,\n       SUM(o.amount) AS total_amount\nFROM orders o\nJOIN customers c ON c.customer_id = o.customer_id\nWHERE o.status = 'Delivered' AND o.amount >= 500\nGROUP BY c.customer_id, c.name\nHAVING COUNT(*) >= 2\nORDER BY total_amount DESC;",
+          "steps": [
+            "JOIN matches every order to its customer.",
+            "WHERE removes Cancelled orders (102 and 109) and orders below 500.",
+            "GROUP BY customer_id and name forms a distinct group per customer.",
+            "COUNT(*) and SUM(amount) produce Asha (2, 2800), Kiran (2, 1600), Meera (1, 2500), Rahul (2, 1100).",
+            "HAVING removes Meera because she has only one qualifying order.",
+            "ORDER BY sorts the remaining customers by total_amount descending."
+          ],
+          "initial": "SELECT c.name as customer_name, COUNT(*) AS delivered_orders, SUM(o.amount) AS total_amount\nFROM orders o\nLEFT JOIN customers c ON o.customer_id = c.customer_id\nWHERE o.status = 'Delivered' AND o.amount >= 500\nGROUP BY c.name, c.customer_id\nHAVING COUNT(*) >= 2\nORDER BY SUM(o.amount) DESC",
+          "solvedInitially": true,
+          "checks": [
+            {
+              "pattern": "\\bJOIN\\s+customers\\b",
+              "error": "Join the orders and customers tables."
+            },
+            {
+              "pattern": "\\bstatus\\s*=\\s*['\"]Delivered['\"]",
+              "error": "Filter to Delivered orders."
+            },
+            {
+              "pattern": "\\bamount\\s*>=\\s*500\\b",
+              "error": "Add the amount >= 500 filter."
+            },
+            {
+              "pattern": "\\bGROUP\\s+BY\\b",
+              "error": "Group rows by customer."
+            },
+            {
+              "pattern": "\\bHAVING\\s+COUNT\\s*\\(\\s*\\*\\s*\\)\\s*>=\\s*2",
+              "error": "Keep only customers with at least two orders."
+            },
+            {
+              "pattern": "\\bSUM\\s*\\(",
+              "error": "Sum the order amounts."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b[^;]*\\bDESC",
+              "error": "Sort total amount descending."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Employee Salary Update",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "UPDATE",
+            "CASE",
+            "WHERE"
+          ],
+          "intro": "You have the following employees table.",
+          "tables": [
+            {
+              "name": "employees",
+              "headers": [
+                "emp_id",
+                "name",
+                "department",
+                "salary",
+                "experience"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Rahul",
+                  "Backend",
+                  50000,
+                  2
+                ],
+                [
+                  2,
+                  "Priya",
+                  "Backend",
+                  80000,
+                  5
+                ],
+                [
+                  3,
+                  "Amit",
+                  "QA",
+                  40000,
+                  1
+                ],
+                [
+                  4,
+                  "Sneha",
+                  "Backend",
+                  60000,
+                  3
+                ],
+                [
+                  5,
+                  "Karan",
+                  "QA",
+                  70000,
+                  4
+                ],
+                [
+                  6,
+                  "Riya",
+                  "DevOps",
+                  90000,
+                  6
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write ONE UPDATE statement.",
+            "Increase salary by 20% for Backend employees with 3 or more years of experience.",
+            "Increase salary by 10% for Backend employees with less than 3 years of experience.",
+            "Do not modify employees from other departments."
+          ],
+          "output": {
+            "headers": [
+              "name",
+              "department",
+              "salary"
+            ],
+            "rows": [
+              [
+                "Rahul",
+                "Backend",
+                55000
+              ],
+              [
+                "Priya",
+                "Backend",
+                96000
+              ],
+              [
+                "Amit",
+                "QA",
+                40000
+              ],
+              [
+                "Sneha",
+                "Backend",
+                72000
+              ],
+              [
+                "Karan",
+                "QA",
+                70000
+              ],
+              [
+                "Riya",
+                "DevOps",
+                90000
+              ]
+            ]
+          },
+          "hint": "Use UPDATE ... SET salary = CASE WHEN ... THEN ... ELSE ... END WHERE ...",
+          "solution": "UPDATE employees\nSET salary = CASE\n    WHEN experience >= 3 THEN salary * 1.20\n    ELSE salary * 1.10\nEND\nWHERE department = 'Backend';",
+          "steps": [
+            "UPDATE identifies the employees table.",
+            "WHERE restricts changes to the Backend department.",
+            "CASE evaluates each selected employee's experience.",
+            "Priya and Sneha get 20% increases; Rahul gets a 10% increase.",
+            "All QA and DevOps salaries remain unchanged."
+          ],
+          "initial": "UPDATE employees \nSET salary = CASE \n       WHEN experience >= 3 THEN salary + (salary * 0.2)\n       ELSE salary + (salary * 0.1)\nEND\nWHERE department = 'Backend'",
+          "solvedInitially": true,
+          "checks": [
+            {
+              "pattern": "\\bUPDATE\\s+employees\\b",
+              "error": "Update the employees table."
+            },
+            {
+              "pattern": "\\bSET\\s+salary\\s*=\\s*CASE\\b",
+              "error": "Use CASE to calculate salary."
+            },
+            {
+              "pattern": "\\bWHEN\\s+experience\\s*>=\\s*3\\b",
+              "error": "Handle experience >= 3."
+            },
+            {
+              "pattern": "(?:0\\.2\\b|1\\.2\\b)",
+              "error": "Check the 20% raise."
+            },
+            {
+              "pattern": "\\bELSE\\b|\\bWHEN\\s+experience\\s*<\\s*3\\b",
+              "error": "Handle everyone below 3 years."
+            },
+            {
+              "pattern": "(?:0\\.1\\b|1\\.1\\b)",
+              "error": "Check the 10% raise."
+            },
+            {
+              "pattern": "\\bWHERE\\s+department\\s*=\\s*['\"]Backend['\"]",
+              "error": "Restrict the update to Backend."
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Create & Insert Courses",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "CREATE TABLE",
+            "PRIMARY KEY",
+            "UNIQUE",
+            "DEFAULT",
+            "INSERT"
+          ],
+          "intro": "Create a new courses table using the schema below and insert two courses.",
+          "tables": [
+            {
+              "name": "Required schema",
+              "headers": [
+                "column",
+                "type",
+                "constraints"
+              ],
+              "rows": [
+                [
+                  "course_id",
+                  "INT",
+                  "PRIMARY KEY, AUTO_INCREMENT"
+                ],
+                [
+                  "course_name",
+                  "VARCHAR(100)",
+                  "NOT NULL, UNIQUE"
+                ],
+                [
+                  "fee",
+                  "INT",
+                  "NOT NULL, DEFAULT 0"
+                ],
+                [
+                  "is_active",
+                  "BOOLEAN",
+                  "NOT NULL, DEFAULT TRUE"
+                ]
+              ]
+            },
+            {
+              "name": "Records to insert",
+              "headers": [
+                "course_name",
+                "fee"
+              ],
+              "rows": [
+                [
+                  "SQL Basics",
+                  1500
+                ],
+                [
+                  "DSA",
+                  2000
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Create courses with all four columns and the specified constraints.",
+            "Insert SQL Basics (1500) and DSA (2000) in ONE INSERT statement.",
+            "Do not manually specify course_id or is_active.",
+            "Write both the CREATE TABLE and INSERT statements."
+          ],
+          "output": {
+            "headers": [
+              "course_id",
+              "course_name",
+              "fee",
+              "is_active"
+            ],
+            "rows": [
+              [
+                1,
+                "SQL Basics",
+                1500,
+                1
+              ],
+              [
+                2,
+                "DSA",
+                2000,
+                1
+              ]
+            ]
+          },
+          "note": "Expected IDs assume a fresh table with default auto-increment settings.",
+          "hint": "AUTO_INCREMENT generates IDs. DEFAULT TRUE supplies the active flag when omitted. Multiple VALUES tuples can be inserted with one INSERT.",
+          "solution": "CREATE TABLE courses (\n    course_id INT AUTO_INCREMENT PRIMARY KEY,\n    course_name VARCHAR(100) NOT NULL UNIQUE,\n    fee INT NOT NULL DEFAULT 0,\n    is_active BOOLEAN NOT NULL DEFAULT TRUE\n);\n\nINSERT INTO courses (course_name, fee)\nVALUES ('SQL Basics', 1500), ('DSA', 2000);",
+          "steps": [
+            "CREATE TABLE defines the four columns and their constraints.",
+            "AUTO_INCREMENT creates IDs; UNIQUE and NOT NULL enforce data rules.",
+            "The INSERT specifies only course_name and fee.",
+            "VALUES supplies two rows, so MySQL creates them in one statement.",
+            "With a fresh table, IDs are 1 and 2, and is_active defaults to 1."
+          ],
+          "initial": "CREATE TABLE courses (\n       course_id INT AUTO_INCREMENT PRIMARY KEY,\n       course_name VARCHAR(100) UNIQUE NOT NULL,\n\n)",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bCREATE\\s+TABLE\\s+courses\\s*\\(",
+              "error": "Create the courses table."
+            },
+            {
+              "pattern": "\\bcourse_id\\s+INT\\b",
+              "error": "Define course_id INT."
+            },
+            {
+              "pattern": "\\bAUTO_INCREMENT\\b",
+              "error": "Set course_id to AUTO_INCREMENT."
+            },
+            {
+              "pattern": "\\bPRIMARY\\s+KEY\\b",
+              "error": "Define a primary key."
+            },
+            {
+              "pattern": "\\bcourse_name\\s+VARCHAR\\s*\\(\\s*100\\s*\\)",
+              "error": "Use VARCHAR(100) for course_name."
+            },
+            {
+              "pattern": "\\bUNIQUE\\b",
+              "error": "Make course_name UNIQUE."
+            },
+            {
+              "pattern": "\\bfee\\s+INT\\s+NOT\\s+NULL\\s+DEFAULT\\s+0",
+              "error": "Add fee INT NOT NULL DEFAULT 0."
+            },
+            {
+              "pattern": "\\bis_active\\s+BOOLEAN\\s+NOT\\s+NULL\\s+DEFAULT\\s+TRUE",
+              "error": "Add is_active BOOLEAN NOT NULL DEFAULT TRUE."
+            },
+            {
+              "pattern": "\\bINSERT\\s+INTO\\s+courses\\b",
+              "error": "Insert both courses."
+            },
+            {
+              "pattern": "['\"]SQL Basics['\"]\\s*,\\s*1500",
+              "error": "Insert SQL Basics with fee 1500."
+            },
+            {
+              "pattern": "['\"]DSA['\"]\\s*,\\s*2000",
+              "error": "Insert DSA with fee 2000."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
