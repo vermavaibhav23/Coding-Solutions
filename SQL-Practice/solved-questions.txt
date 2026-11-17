@@ -1,23 +1,13 @@
-SQL PRACTICE — SOLVED QUESTIONS
-===============================
-Dialect       : MySQL 8.0
-Repository    : vermavaibhav23/Coding-Solutions
-Practice track: Easy–Medium to Medium
-Archive rule  : Only questions answered correctly by the learner are added.
-               Final submitted SQL is preserved as written.
+SQL Practice
+MySQL 8.0
 
-======================================================================
-DAY 01 | QUESTION 01 | CUSTOMER ORDER ANALYSIS
-======================================================================
+Day 1 - Question 1: Customer Order Analysis
+Difficulty: Easy-Medium
+Topics: JOIN, WHERE, GROUP BY, HAVING, COUNT, SUM, ORDER BY
 
-Difficulty: Easy–Medium
-Topics    : SELECT, LEFT JOIN, WHERE, GROUP BY, HAVING, COUNT, SUM,
-            ORDER BY
-Status    : Solved
-
-QUESTION
+Question
 --------
-You have two tables.
+You have two tables:
 
 Table 1: customers
 
@@ -47,7 +37,7 @@ Table 2: orders
 | 109      | 5           | 400    | Cancelled |
 +----------+-------------+--------+-----------+
 
-Your task:
+Task:
 Find customers who have at least 2 delivered orders, considering only
 orders where amount >= 500.
 
@@ -58,7 +48,7 @@ Display:
 
 Sort by highest total_amount first.
 
-EXPECTED OUTPUT
+Expected Output
 ---------------
 +---------------+------------------+--------------+
 | customer_name | delivered_orders | total_amount |
@@ -68,8 +58,8 @@ EXPECTED OUTPUT
 | Rahul         | 2                | 1100         |
 +---------------+------------------+--------------+
 
-MY FINAL CORRECT QUERY
-----------------------
+My SQL Query
+------------
 SELECT c.name as customer_name, COUNT(*) AS delivered_orders, SUM(o.amount) AS total_amount
 FROM orders o
 LEFT JOIN customers c ON o.customer_id = c.customer_id
@@ -78,17 +68,3 @@ GROUP BY c.name, c.customer_id
 HAVING COUNT(*) >= 2
 ORDER BY SUM(o.amount) DESC
 
-NOTES
------
-- Filtering happens before grouping.
-- Grouping by both customer name and customer ID keeps namesakes
-  in separate groups.
-- HAVING keeps only customers with at least two qualifying orders.
-- The query above is reproduced exactly from the learner's final
-  accepted submission, without rewriting or changing its join type.
-
-======================================================================
-END OF SOLVED ARCHIVE
-======================================================================
-
-Future questions will be appended only after their final SQL is accepted.
