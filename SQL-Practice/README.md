@@ -8,6 +8,7 @@ My SQL practice questions and solutions using MySQL 8.0. I'm working on queries 
 | --- | --- | --- |
 | 1 | Customer Order Analysis | JOIN, WHERE, GROUP BY, HAVING, COUNT, SUM, ORDER BY |
 | 1 | Employee Salary Update | UPDATE, SET, CASE, WHERE |
+| 2 | Warehouse Restock Queue | SELECT, WHERE, Computed Columns, ORDER BY |
 
 Questions, sample data, expected outputs, and my SQL queries are in [solved-questions.txt](solved-questions.txt).
 
