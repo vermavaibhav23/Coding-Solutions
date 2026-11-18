@@ -1006,6 +1006,575 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-19",
+      "day": 3,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Subscription Payment Summary",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "GROUP BY",
+            "CASE",
+            "Conditional Aggregation",
+            "ORDER BY"
+          ],
+          "intro": "A subscription service records every payment attempt. A payment can be Success, Failed, or Pending. Prepare a summary for each plan without losing plans that have no successful payments.",
+          "tables": [
+            {
+              "name": "subscription_payments",
+              "headers": [
+                "payment_id",
+                "plan_name",
+                "status",
+                "amount"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Basic",
+                  "Success",
+                  200
+                ],
+                [
+                  2,
+                  "Basic",
+                  "Failed",
+                  200
+                ],
+                [
+                  3,
+                  "Basic",
+                  "Pending",
+                  200
+                ],
+                [
+                  4,
+                  "Pro",
+                  "Success",
+                  700
+                ],
+                [
+                  5,
+                  "Pro",
+                  "Success",
+                  500
+                ],
+                [
+                  6,
+                  "Pro",
+                  "Failed",
+                  750
+                ],
+                [
+                  7,
+                  "Premium",
+                  "Success",
+                  1500
+                ],
+                [
+                  8,
+                  "Premium",
+                  "Failed",
+                  1500
+                ],
+                [
+                  9,
+                  "Premium",
+                  "Success",
+                  1000
+                ],
+                [
+                  10,
+                  "Starter",
+                  "Failed",
+                  150
+                ],
+                [
+                  11,
+                  "Starter",
+                  "Pending",
+                  150
+                ],
+                [
+                  12,
+                  "Pro",
+                  "Pending",
+                  300
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write one SELECT query returning exactly one row per plan_name.",
+            "Display plan_name, total_attempts (count all rows), failed_attempts (count only status = 'Failed'), and successful_amount (sum amount only when status = 'Success').",
+            "Use CASE-based conditional aggregation for failed_attempts and successful_amount. Failed and Pending amounts must not contribute to successful_amount.",
+            "Include plans with zero successes; their successful_amount must be 0.",
+            "Sort by successful_amount descending, then plan_name ascending."
+          ],
+          "output": {
+            "headers": [
+              "plan_name",
+              "total_attempts",
+              "failed_attempts",
+              "successful_amount"
+            ],
+            "rows": [
+              [
+                "Premium",
+                3,
+                1,
+                2500
+              ],
+              [
+                "Pro",
+                4,
+                1,
+                1200
+              ],
+              [
+                "Basic",
+                3,
+                1,
+                200
+              ],
+              [
+                "Starter",
+                2,
+                1,
+                0
+              ]
+            ]
+          },
+          "hint": "GROUP BY plan_name. COUNT(*) includes every attempt. Use SUM(CASE WHEN ... THEN ... ELSE 0 END) for each condition; do not filter statuses in WHERE.",
+          "solution": "SELECT plan_name,\n       COUNT(*) AS total_attempts,\n       SUM(CASE WHEN status = 'Failed' THEN 1 ELSE 0 END) AS failed_attempts,\n       SUM(CASE WHEN status = 'Success' THEN amount ELSE 0 END) AS successful_amount\nFROM subscription_payments\nGROUP BY plan_name\nORDER BY successful_amount DESC, plan_name ASC;",
+          "steps": [
+            "GROUP BY plan_name creates four groups: Basic, Pro, Premium, Starter.",
+            "COUNT(*) counts all attempts, including Pending and Failed: Basic 3, Pro 4, Premium 3, Starter 2.",
+            "For each row, the Failed CASE returns 1 only for Failed; summing gives one failed attempt in each plan.",
+            "For each row, the Success CASE contributes the amount only for Success. Premium: 1500+1000=2500; Pro: 700+500=1200; Basic: 200; Starter: 0.",
+            "Sorting by successful_amount descending gives Premium, Pro, Basic, Starter. The name is the tie-breaker for equal totals."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bFROM\\s+subscription_payments\\b",
+              "error": "Read from subscription_payments."
+            },
+            {
+              "pattern": "\\bCOUNT\\s*\\(\\s*\\*\\s*\\)",
+              "error": "Count all attempts, including Pending and Failed."
+            },
+            {
+              "pattern": "\\bGROUP\\s+BY\\s+plan_name\\b",
+              "error": "Group rows by plan_name."
+            },
+            {
+              "pattern": "\\bCASE\\s+WHEN\\s+status\\s*=\\s*['\"]Failed['\"]",
+              "error": "Count failures with CASE-based conditional aggregation."
+            },
+            {
+              "pattern": "\\bCASE\\s+WHEN\\s+status\\s*=\\s*['\"]Success['\"]",
+              "error": "Sum successful payments with CASE-based conditional aggregation."
+            },
+            {
+              "pattern": "\\bSUM\\s*\\(",
+              "error": "Use SUM for the conditional totals."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Sort by successful_amount descending, then plan_name ascending."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Movies Above Their Genre Average",
+          "difficulty": "Medium",
+          "topics": [
+            "Correlated Subquery",
+            "AVG",
+            "WHERE",
+            "ORDER BY"
+          ],
+          "intro": "A movie catalog stores each movie's genre and rating. Compare a movie's rating against the average rating of all movies in its own genre (including itself). A genre may contain only one movie.",
+          "tables": [
+            {
+              "name": "movies",
+              "headers": [
+                "movie_id",
+                "title",
+                "genre",
+                "rating"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Cloudfarer",
+                  "Sci-Fi",
+                  7
+                ],
+                [
+                  2,
+                  "Orbit Nine",
+                  "Sci-Fi",
+                  9
+                ],
+                [
+                  3,
+                  "Moon Garden",
+                  "Sci-Fi",
+                  8
+                ],
+                [
+                  4,
+                  "Laugh Track",
+                  "Comedy",
+                  6
+                ],
+                [
+                  5,
+                  "Sunny Days",
+                  "Comedy",
+                  8
+                ],
+                [
+                  6,
+                  "Golden Hour",
+                  "Drama",
+                  8
+                ],
+                [
+                  7,
+                  "River Home",
+                  "Drama",
+                  8
+                ],
+                [
+                  8,
+                  "Deep Line",
+                  "Thriller",
+                  8.5
+                ],
+                [
+                  9,
+                  "Night Signal",
+                  "Thriller",
+                  9
+                ],
+                [
+                  10,
+                  "Quiet Street",
+                  "Thriller",
+                  7.5
+                ],
+                [
+                  11,
+                  "Solo Act",
+                  "Documentary",
+                  9.5
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a correlated scalar subquery with AVG() to find movies rated strictly above the average rating of movies in the same genre.",
+            "Calculate the average using all movies in that genre, including the movie currently being checked.",
+            "Display only title, genre, and rating.",
+            "Exclude movies whose ratings equal their genre average. A single-movie genre therefore produces no result.",
+            "Sort by genre ascending, then rating descending, then title ascending."
+          ],
+          "output": {
+            "headers": [
+              "title",
+              "genre",
+              "rating"
+            ],
+            "rows": [
+              [
+                "Sunny Days",
+                "Comedy",
+                8
+              ],
+              [
+                "Orbit Nine",
+                "Sci-Fi",
+                9
+              ],
+              [
+                "Night Signal",
+                "Thriller",
+                9
+              ],
+              [
+                "Deep Line",
+                "Thriller",
+                8.5
+              ]
+            ]
+          },
+          "hint": "For each outer movie row, run SELECT AVG(rating) on another alias of movies, restricted to the same genre, and compare the outer rating with >.",
+          "solution": "SELECT m.title, m.genre, m.rating\nFROM movies AS m\nWHERE m.rating > (\n    SELECT AVG(m2.rating)\n    FROM movies AS m2\n    WHERE m2.genre = m.genre\n)\nORDER BY m.genre ASC, m.rating DESC, m.title ASC;",
+          "steps": [
+            "The outer query checks each movie one by one.",
+            "The correlated subquery computes an average for the current movie's genre. Sci-Fi average is (7+9+8)/3 = 8; Comedy average is (6+8)/2 = 7.",
+            "Drama average is 8, and both Drama movies equal it, so neither qualifies.",
+            "Thriller average is (8.5+9+7.5)/3 = 25/3 ≈ 8.33. Deep Line (8.5) and Night Signal (9) are above it.",
+            "Documentary contains one movie rated 9.5; its average is 9.5, so Solo Act is not strictly above it.",
+            "The qualified rows are Sunny Days, Orbit Nine, Night Signal, and Deep Line; ORDER BY puts them in the requested genre and rating order."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bFROM\\s+movies\\b",
+              "error": "Read from the movies table."
+            },
+            {
+              "pattern": "\\bAVG\\s*\\(",
+              "error": "Calculate each genre's average with AVG()."
+            },
+            {
+              "pattern": "\\bWHERE\\b",
+              "error": "Filter movies by comparing their rating with a subquery."
+            },
+            {
+              "pattern": "\\bSELECT\\s+AVG\\s*\\(",
+              "error": "Use a scalar SELECT AVG(...) subquery."
+            },
+            {
+              "pattern": "\\bgenre\\s*=\\s*\\w+\\.genre\\b",
+              "error": "Correlate the inner genre with the outer movie's genre."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Sort by genre, rating, and title as specified."
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Daily Paid Revenue Running Total",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "GROUP BY",
+            "SUM",
+            "Window Functions",
+            "Running Total"
+          ],
+          "intro": "A sales platform records purchases at different stores. Multiple paid purchases can occur at the same store on the same date. Failed and Refunded purchases do not count toward revenue.",
+          "tables": [
+            {
+              "name": "sales",
+              "headers": [
+                "sale_id",
+                "store_id",
+                "sale_date",
+                "amount",
+                "status"
+              ],
+              "rows": [
+                [
+                  1,
+                  1,
+                  "2026-11-01",
+                  100,
+                  "Paid"
+                ],
+                [
+                  2,
+                  1,
+                  "2026-11-01",
+                  200,
+                  "Paid"
+                ],
+                [
+                  3,
+                  1,
+                  "2026-11-02",
+                  50,
+                  "Refunded"
+                ],
+                [
+                  4,
+                  1,
+                  "2026-11-02",
+                  150,
+                  "Paid"
+                ],
+                [
+                  5,
+                  1,
+                  "2026-11-04",
+                  300,
+                  "Paid"
+                ],
+                [
+                  6,
+                  2,
+                  "2026-11-01",
+                  400,
+                  "Paid"
+                ],
+                [
+                  7,
+                  2,
+                  "2026-11-03",
+                  200,
+                  "Paid"
+                ],
+                [
+                  8,
+                  2,
+                  "2026-11-03",
+                  100,
+                  "Failed"
+                ],
+                [
+                  9,
+                  2,
+                  "2026-11-05",
+                  50,
+                  "Paid"
+                ],
+                [
+                  10,
+                  3,
+                  "2026-11-01",
+                  100,
+                  "Failed"
+                ],
+                [
+                  11,
+                  3,
+                  "2026-11-02",
+                  80,
+                  "Refunded"
+                ],
+                [
+                  12,
+                  3,
+                  "2026-11-04",
+                  500,
+                  "Paid"
+                ],
+                [
+                  13,
+                  4,
+                  "2026-11-01",
+                  100,
+                  "Failed"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a CTE to calculate daily_revenue as the sum of amounts for Paid sales on each store_id and sale_date.",
+            "Exclude Failed and Refunded sales entirely. Days with no Paid sales should not appear; stores without any Paid sales should not appear.",
+            "In the outer query, use SUM(...) OVER (...) to calculate running_revenue for each store, in sale_date order, including the current day's daily_revenue.",
+            "Display store_id, sale_date, daily_revenue, and running_revenue.",
+            "Sort the final output by store_id ascending, then sale_date ascending."
+          ],
+          "output": {
+            "headers": [
+              "store_id",
+              "sale_date",
+              "daily_revenue",
+              "running_revenue"
+            ],
+            "rows": [
+              [
+                1,
+                "2026-11-01",
+                300,
+                300
+              ],
+              [
+                1,
+                "2026-11-02",
+                150,
+                450
+              ],
+              [
+                1,
+                "2026-11-04",
+                300,
+                750
+              ],
+              [
+                2,
+                "2026-11-01",
+                400,
+                400
+              ],
+              [
+                2,
+                "2026-11-03",
+                200,
+                600
+              ],
+              [
+                2,
+                "2026-11-05",
+                50,
+                650
+              ],
+              [
+                3,
+                "2026-11-04",
+                500,
+                500
+              ]
+            ]
+          },
+          "hint": "First build a daily_paid CTE with WHERE status='Paid' and GROUP BY store_id, sale_date. Then run SUM(daily_revenue) OVER (PARTITION BY store_id ORDER BY sale_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW).",
+          "solution": "WITH daily_paid AS (\n    SELECT store_id, sale_date, SUM(amount) AS daily_revenue\n    FROM sales\n    WHERE status = 'Paid'\n    GROUP BY store_id, sale_date\n)\nSELECT store_id, sale_date, daily_revenue,\n       SUM(daily_revenue) OVER (\n           PARTITION BY store_id\n           ORDER BY sale_date\n           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\n       ) AS running_revenue\nFROM daily_paid\nORDER BY store_id ASC, sale_date ASC;",
+          "steps": [
+            "Inside the CTE, WHERE status = 'Paid' removes sale IDs 3, 8, 10, 11 and 13 before adding amounts.",
+            "The CTE groups multiple purchases from the same store on the same date. For store 1 on Nov 1, 100+200 gives daily_revenue 300.",
+            "The daily revenue for store 1 is 300 (Nov 1), 150 (Nov 2), and 300 (Nov 4). Store 2 has 400 (Nov 1), 200 (Nov 3), and 50 (Nov 5). Store 3 has only 500 (Nov 4).",
+            "The window function PARTITION BY store_id restarts the total for each store, and ORDER BY sale_date adds each day's revenue in chronological order.",
+            "Store 1 running totals are 300, 450, 750. Store 2 totals are 400, 600, 650. Store 3 has 500.",
+            "Store 4 has no paid purchases, so it never enters the CTE. The final ORDER BY lists each store's dates from oldest to newest."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bWITH\\s+\\w+\\s+AS\\s*\\(",
+              "error": "Use a CTE to compute daily revenue first."
+            },
+            {
+              "pattern": "\\bFROM\\s+sales\\b",
+              "error": "Read from the sales table."
+            },
+            {
+              "pattern": "\\bstatus\\s*=\\s*['\"]Paid['\"]",
+              "error": "Only Paid sales should count."
+            },
+            {
+              "pattern": "\\bGROUP\\s+BY\\s+store_id\\s*,\\s*sale_date\\b",
+              "error": "Group by store and sale date before the running total."
+            },
+            {
+              "pattern": "\\bSUM\\s*\\(\\s*daily_revenue\\s*\\)\\s+OVER\\s*\\(",
+              "error": "Use SUM(daily_revenue) OVER (...) for the running total."
+            },
+            {
+              "pattern": "\\bPARTITION\\s+BY\\s+store_id\\b",
+              "error": "Restart running totals separately for each store."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\s+sale_date\\b",
+              "error": "Order the window by sale_date."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
