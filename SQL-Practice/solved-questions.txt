@@ -115,3 +115,50 @@ SET salary = CASE
        ELSE salary + (salary * 0.1)
 END
 WHERE department = 'Backend'
+
+Day 2 - Question 1: Warehouse Restock Queue
+Difficulty: Easy-Medium
+Topics: SELECT, WHERE, Computed Columns, ORDER BY
+
+Question
+--------
+The products table contains current stock and the minimum reorder level for each product. Only active products should appear in the restock queue.
+
+Table: products
+
++------------+--------------+-------------+-------+---------------+-----------+
+| product_id | product_name | category    | stock | reorder_level | is_active |
++------------+--------------+-------------+-------+---------------+-----------+
+| 1          | Keyboard     | Accessories | 5     | 10            | 1         |
+| 2          | Mouse        | Accessories | 12    | 10            | 1         |
+| 3          | Monitor      | Electronics | 2     | 5             | 1         |
+| 4          | Webcam       | Electronics | 0     | 8             | 1         |
+| 5          | USB Hub      | Accessories | 3     | 5             | 0         |
+| 6          | Laptop       | Electronics | 14    | 10            | 1         |
+| 7          | Headphones   | Electronics | 4     | 4             | 1         |
+| 8          | Charger      | Accessories | 1     | 5             | 1         |
++------------+--------------+-------------+-------+---------------+-----------+
+
+Task:
+1. Write a SELECT query to list products that need restocking.
+2. Include only active products (is_active = 1) whose stock is strictly below reorder_level.
+3. Display product_name, stock, and a computed column named shortage, equal to reorder_level - stock.
+4. Order by shortage from highest to lowest. When shortages tie, order by product_name alphabetically.
+
+Expected Output
+---------------
++--------------+-------+----------+
+| product_name | stock | shortage |
++--------------+-------+----------+
+| Webcam       | 0     | 8        |
+| Keyboard     | 5     | 5        |
+| Charger      | 1     | 4        |
+| Monitor      | 2     | 3        |
++--------------+-------+----------+
+
+My SQL Query
+------------
+SELECT product_name, stock, (reorder_level - stock) AS shortage
+FROM products
+WHERE is_active = 1 AND stock < reorder_level
+ORDER BY shortage DESC, product_name ASC
