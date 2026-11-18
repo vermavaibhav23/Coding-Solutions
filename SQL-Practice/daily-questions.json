@@ -627,8 +627,8 @@
             "Calculate shortage for the four remaining products: Keyboard 10-5=5, Monitor 5-2=3, Webcam 8-0=8, Charger 5-1=4.",
             "Sort shortage descending to get Webcam, Keyboard, Charger, then Monitor. Product name is the tie-breaker if equal shortages occur."
           ],
-          "initial": "",
-          "solvedInitially": false,
+          "initial": "SELECT product_name, stock, (reorder_level - stock) AS shortage\nFROM products\nWHERE is_active = 1 AND stock < reorder_level\nORDER BY shortage DESC, product_name ASC",
+          "solvedInitially": true,
           "checks": [
             {
               "pattern": "\\bFROM\\s+products\\b",
