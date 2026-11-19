@@ -1575,6 +1575,668 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-20",
+      "day": 4,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Department Headcount and Payroll",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "LEFT JOIN",
+            "GROUP BY",
+            "COUNT",
+            "SUM",
+            "COALESCE",
+            "ORDER BY"
+          ],
+          "intro": "A company stores departments separately from employees. Some departments may have no employees yet. Build a summary that includes every department, even an empty one.",
+          "tables": [
+            {
+              "name": "departments",
+              "headers": [
+                "department_id",
+                "department_name"
+              ],
+              "rows": [
+                [
+                  10,
+                  "Engineering"
+                ],
+                [
+                  20,
+                  "Support"
+                ],
+                [
+                  30,
+                  "Design"
+                ],
+                [
+                  40,
+                  "Legal"
+                ],
+                [
+                  50,
+                  "Operations"
+                ]
+              ]
+            },
+            {
+              "name": "employees",
+              "headers": [
+                "employee_id",
+                "employee_name",
+                "department_id",
+                "salary"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Maya",
+                  10,
+                  90000
+                ],
+                [
+                  2,
+                  "Rahul",
+                  10,
+                  110000
+                ],
+                [
+                  3,
+                  "Tara",
+                  20,
+                  50000
+                ],
+                [
+                  4,
+                  "Leo",
+                  20,
+                  45000
+                ],
+                [
+                  5,
+                  "Mina",
+                  30,
+                  72000
+                ],
+                [
+                  6,
+                  "Noah",
+                  50,
+                  60000
+                ],
+                [
+                  7,
+                  "Kiran",
+                  50,
+                  60000
+                ],
+                [
+                  8,
+                  "Sophia",
+                  50,
+                  60000
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write one SELECT query that displays every department, including departments with zero employees.",
+            "Show department_name, employee_count (number of employees), and total_payroll (sum of employee salaries).",
+            "For departments with no employees, employee_count and total_payroll must both be 0, not NULL.",
+            "Sort by total_payroll descending. Break ties with department_name ascending."
+          ],
+          "output": {
+            "headers": [
+              "department_name",
+              "employee_count",
+              "total_payroll"
+            ],
+            "rows": [
+              [
+                "Engineering",
+                2,
+                200000
+              ],
+              [
+                "Operations",
+                3,
+                180000
+              ],
+              [
+                "Support",
+                2,
+                95000
+              ],
+              [
+                "Design",
+                1,
+                72000
+              ],
+              [
+                "Legal",
+                0,
+                0
+              ]
+            ]
+          },
+          "hint": "Start from departments, not employees. Think about which JOIN preserves rows with no matches, and which COUNT expression avoids counting a placeholder NULL row.",
+          "solution": "SELECT d.department_name,\n       COUNT(e.employee_id) AS employee_count,\n       COALESCE(SUM(e.salary), 0) AS total_payroll\nFROM departments d\nLEFT JOIN employees e ON d.department_id = e.department_id\nGROUP BY d.department_id, d.department_name\nORDER BY total_payroll DESC, d.department_name ASC;",
+          "steps": [
+            "Start with all five rows of departments. LEFT JOIN matches employees to each department, while preserving Legal even though it has no employee match.",
+            "Group by department_id and department_name, so one summary row is produced per department.",
+            "COUNT(e.employee_id) counts actual matching employees. For Legal it counts 0 because the unmatched employee_id is NULL.",
+            "SUM(e.salary) adds salaries: Engineering 90000 + 110000 = 200000; Operations 60000 + 60000 + 60000 = 180000; Support 50000 + 45000 = 95000; Design 72000.",
+            "Legal's SUM is NULL, so COALESCE turns its total_payroll into 0.",
+            "Sort by total_payroll descending and by department_name ascending for ties."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bFROM\\s+departments\\b",
+              "error": "Start from departments to include all of them."
+            },
+            {
+              "pattern": "\\bLEFT\\s+(?:OUTER\\s+)?JOIN\\s+employees\\b",
+              "error": "Include departments even when no employee matches."
+            },
+            {
+              "pattern": "\\bCOUNT\\s*\\(",
+              "error": "Count the employees in each department."
+            },
+            {
+              "pattern": "\\bSUM\\s*\\(",
+              "error": "Calculate total salary per department."
+            },
+            {
+              "pattern": "\\bCOALESCE\\s*\\(",
+              "error": "Return 0 instead of NULL for empty department payrolls."
+            },
+            {
+              "pattern": "\\bGROUP\\s+BY\\b",
+              "error": "Group your results per department."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Sort by descending payroll, then department name."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Apply Category Discounts with UPDATE JOIN",
+          "difficulty": "Medium",
+          "topics": [
+            "UPDATE JOIN",
+            "WHERE",
+            "ROUND",
+            "DECIMAL",
+            "DML"
+          ],
+          "intro": "A store maintains product prices and category-wide discount rules in separate tables. Apply qualifying discounts to product prices directly in the products table.",
+          "tables": [
+            {
+              "name": "category_discounts",
+              "headers": [
+                "category_id",
+                "category_name",
+                "discount_percent",
+                "enabled"
+              ],
+              "rows": [
+                [
+                  10,
+                  "Electronics",
+                  10,
+                  1
+                ],
+                [
+                  20,
+                  "Home",
+                  20,
+                  0
+                ],
+                [
+                  30,
+                  "Books",
+                  15,
+                  1
+                ],
+                [
+                  40,
+                  "Clothing",
+                  0,
+                  1
+                ]
+              ]
+            },
+            {
+              "name": "products (before UPDATE)",
+              "headers": [
+                "product_id",
+                "product_name",
+                "category_id",
+                "price",
+                "is_active"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Charger",
+                  10,
+                  800,
+                  1
+                ],
+                [
+                  2,
+                  "Headphones",
+                  10,
+                  1500,
+                  0
+                ],
+                [
+                  3,
+                  "Lamp",
+                  20,
+                  600,
+                  1
+                ],
+                [
+                  4,
+                  "Novel",
+                  30,
+                  400,
+                  1
+                ],
+                [
+                  5,
+                  "Shirt",
+                  40,
+                  1200,
+                  1
+                ],
+                [
+                  6,
+                  "Notebook",
+                  30,
+                  99.99,
+                  1
+                ],
+                [
+                  7,
+                  "Desk",
+                  20,
+                  3000,
+                  0
+                ],
+                [
+                  8,
+                  "Tablet",
+                  10,
+                  1299.99,
+                  1
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write ONE MySQL 8.0 UPDATE statement using a JOIN between products and category_discounts on category_id.",
+            "Reduce a product's current price by its category discount_percent, but ONLY when the product is active, the category discount is enabled, and discount_percent > 0.",
+            "Round every changed price to two decimal places using ROUND(..., 2). Assume price is stored as DECIMAL(10,2).",
+            "Leave all other products unchanged. Do not manually calculate or hardcode individual new prices."
+          ],
+          "output": {
+            "headers": [
+              "product_id",
+              "product_name",
+              "price"
+            ],
+            "rows": [
+              [
+                1,
+                "Charger",
+                "720.00"
+              ],
+              [
+                2,
+                "Headphones",
+                "1500.00"
+              ],
+              [
+                3,
+                "Lamp",
+                "600.00"
+              ],
+              [
+                4,
+                "Novel",
+                "340.00"
+              ],
+              [
+                5,
+                "Shirt",
+                "1200.00"
+              ],
+              [
+                6,
+                "Notebook",
+                "84.99"
+              ],
+              [
+                7,
+                "Desk",
+                "3000.00"
+              ],
+              [
+                8,
+                "Tablet",
+                "1169.99"
+              ]
+            ]
+          },
+          "note": "Expected result is the price table after running the UPDATE exactly once; display prices to two decimal places.",
+          "hint": "MySQL supports UPDATE table_alias JOIN other_table ON ... SET ... WHERE ... . Use the discount as a percentage of the existing price and filter out inactive products and disabled/zero discounts.",
+          "solution": "UPDATE products p\nJOIN category_discounts d ON p.category_id = d.category_id\nSET p.price = ROUND(p.price * (1 - d.discount_percent / 100), 2)\nWHERE p.is_active = 1\n  AND d.enabled = 1\n  AND d.discount_percent > 0;",
+          "steps": [
+            "Match each product to its category discount row using category_id.",
+            "Filter: products 2 and 7 are inactive; category Home is disabled (product 3); Clothing has 0% discount (product 5). These prices are unchanged.",
+            "Apply 10% off Charger: 800.00 × 0.90 = 720.00. Apply 15% off Novel: 400.00 × 0.85 = 340.00.",
+            "Notebook becomes ROUND(99.99 × 0.85, 2) = ROUND(84.9915, 2) = 84.99.",
+            "Tablet becomes ROUND(1299.99 × 0.90, 2) = ROUND(1169.991, 2) = 1169.99.",
+            "Only Charger, Novel, Notebook and Tablet are updated. The remaining four products keep their original prices."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bUPDATE\\s+products\\b",
+              "error": "Update the products table."
+            },
+            {
+              "pattern": "\\bJOIN\\s+category_discounts\\b",
+              "error": "Join the category_discounts table."
+            },
+            {
+              "pattern": "\\bSET\\b",
+              "error": "Assign the new price in SET."
+            },
+            {
+              "pattern": "\\bROUND\\s*\\(",
+              "error": "Round changed prices to two decimals."
+            },
+            {
+              "pattern": "\\bis_active\\s*=\\s*(?:1|TRUE)\\b",
+              "error": "Exclude inactive products."
+            },
+            {
+              "pattern": "\\benabled\\s*=\\s*(?:1|TRUE)\\b",
+              "error": "Exclude disabled discounts."
+            },
+            {
+              "pattern": "\\bdiscount_percent\\s*>\\s*0\\b",
+              "error": "Exclude zero discounts."
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Weekly Revenue Change Using LAG",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "GROUP BY",
+            "SUM",
+            "LAG",
+            "PARTITION BY",
+            "Window Functions"
+          ],
+          "intro": "A retailer stores individual sales transactions. Compute each store's total completed revenue for each recorded week and compare it with the previous week that had completed sales.",
+          "tables": [
+            {
+              "name": "sales",
+              "headers": [
+                "sale_id",
+                "store_id",
+                "week_start",
+                "amount",
+                "status"
+              ],
+              "rows": [
+                [
+                  1,
+                  1,
+                  "2026-10-05",
+                  300,
+                  "Completed"
+                ],
+                [
+                  2,
+                  1,
+                  "2026-10-05",
+                  200,
+                  "Completed"
+                ],
+                [
+                  3,
+                  1,
+                  "2026-10-05",
+                  900,
+                  "Cancelled"
+                ],
+                [
+                  4,
+                  1,
+                  "2026-10-12",
+                  450,
+                  "Completed"
+                ],
+                [
+                  5,
+                  1,
+                  "2026-10-19",
+                  650,
+                  "Completed"
+                ],
+                [
+                  6,
+                  1,
+                  "2026-10-19",
+                  25,
+                  "Completed"
+                ],
+                [
+                  7,
+                  2,
+                  "2026-10-05",
+                  700,
+                  "Completed"
+                ],
+                [
+                  8,
+                  2,
+                  "2026-10-12",
+                  100,
+                  "Refunded"
+                ],
+                [
+                  9,
+                  2,
+                  "2026-10-19",
+                  500,
+                  "Completed"
+                ],
+                [
+                  10,
+                  3,
+                  "2026-10-12",
+                  1000,
+                  "Completed"
+                ],
+                [
+                  11,
+                  3,
+                  "2026-10-19",
+                  900,
+                  "Completed"
+                ],
+                [
+                  12,
+                  2,
+                  "2026-10-19",
+                  150,
+                  "Completed"
+                ],
+                [
+                  13,
+                  3,
+                  "2026-10-19",
+                  100,
+                  "Pending"
+                ],
+                [
+                  14,
+                  4,
+                  "2026-10-05",
+                  900,
+                  "Cancelled"
+                ],
+                [
+                  15,
+                  2,
+                  "2026-10-26",
+                  750,
+                  "Completed"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a CTE (WITH clause) to calculate weekly_revenue = SUM(amount) for only Completed sales, grouped by store_id and week_start.",
+            "Using LAG() OVER (PARTITION BY store_id ORDER BY week_start), calculate previous_revenue from the previous RECORDED week with completed sales for the same store (not necessarily the immediately preceding calendar week).",
+            "Calculate revenue_change = weekly_revenue - previous_revenue. For a store's first recorded completed-sales week, both previous_revenue and revenue_change must be NULL.",
+            "Exclude weeks with zero Completed sales; exclude stores with no Completed sales.",
+            "Display store_id, week_start, weekly_revenue, previous_revenue, revenue_change, and order by store_id ascending and week_start ascending."
+          ],
+          "output": {
+            "headers": [
+              "store_id",
+              "week_start",
+              "weekly_revenue",
+              "previous_revenue",
+              "revenue_change"
+            ],
+            "rows": [
+              [
+                1,
+                "2026-10-05",
+                500,
+                null,
+                null
+              ],
+              [
+                1,
+                "2026-10-12",
+                450,
+                500,
+                -50
+              ],
+              [
+                1,
+                "2026-10-19",
+                675,
+                450,
+                225
+              ],
+              [
+                2,
+                "2026-10-05",
+                700,
+                null,
+                null
+              ],
+              [
+                2,
+                "2026-10-19",
+                650,
+                700,
+                -50
+              ],
+              [
+                2,
+                "2026-10-26",
+                750,
+                650,
+                100
+              ],
+              [
+                3,
+                "2026-10-12",
+                1000,
+                null,
+                null
+              ],
+              [
+                3,
+                "2026-10-19",
+                900,
+                1000,
+                -100
+              ]
+            ]
+          },
+          "note": "NULL values in the expected output are SQL NULL values, not the text 'NULL'. Store 2 has no Completed sales in the week of 2026-10-12, so the 2026-10-19 row compares to 2026-10-05.",
+          "hint": "Aggregate first, then apply LAG to the aggregated rows—not to individual transactions. You can use a second CTE so that revenue_change can reuse the previous_revenue alias.",
+          "solution": "WITH weekly_sales AS (\n    SELECT store_id, week_start, SUM(amount) AS weekly_revenue\n    FROM sales\n    WHERE status = 'Completed'\n    GROUP BY store_id, week_start\n), weekly_with_previous AS (\n    SELECT store_id,\n           week_start,\n           weekly_revenue,\n           LAG(weekly_revenue) OVER (\n               PARTITION BY store_id\n               ORDER BY week_start\n           ) AS previous_revenue\n    FROM weekly_sales\n)\nSELECT store_id,\n       week_start,\n       weekly_revenue,\n       previous_revenue,\n       weekly_revenue - previous_revenue AS revenue_change\nFROM weekly_with_previous\nORDER BY store_id ASC, week_start ASC;",
+          "steps": [
+            "WHERE status = 'Completed' removes the Cancelled, Refunded and Pending transactions. Store 4 disappears because it has no Completed sales.",
+            "GROUP BY store_id, week_start sums completed transactions for each week: store 1 has 500, 450, 675; store 2 has 700, 650, 750; store 3 has 1000, 900.",
+            "LAG(weekly_revenue) processes the aggregated weeks within each store in week_start order; for store 1 the prior values are NULL, 500, 450.",
+            "For store 2, the Refunded-only 2026-10-12 week is absent. The 2026-10-19 row therefore compares its 650 against 700 from 2026-10-05.",
+            "Subtract previous_revenue from weekly_revenue: store 1 gives NULL, -50, 225; store 2 gives NULL, -50, 100; store 3 gives NULL, -100.",
+            "For the first row of each store, LAG returns NULL and the subtraction also stays NULL. Final ORDER BY gives store_id and chronological week order."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bWITH\\b",
+              "error": "Use a CTE to aggregate weekly sales."
+            },
+            {
+              "pattern": "\\bFROM\\s+sales\\b",
+              "error": "Read transactions from sales."
+            },
+            {
+              "pattern": "\\bstatus\\s*=\\s*['\"]Completed['\"]",
+              "error": "Count only Completed sales."
+            },
+            {
+              "pattern": "\\bSUM\\s*\\(",
+              "error": "Sum completed revenue."
+            },
+            {
+              "pattern": "\\bGROUP\\s+BY\\b",
+              "error": "Group transactions by store and week."
+            },
+            {
+              "pattern": "\\bLAG\\s*\\(",
+              "error": "Use LAG to retrieve previous recorded weekly revenue."
+            },
+            {
+              "pattern": "\\bPARTITION\\s+BY\\s+store_id\\b",
+              "error": "Calculate LAG independently for each store."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\s+week_start\\b",
+              "error": "Order each store's window by week_start."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
