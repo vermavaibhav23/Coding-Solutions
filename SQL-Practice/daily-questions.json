@@ -2237,6 +2237,808 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-21",
+      "day": 5,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Support Tickets Due for Follow-Up",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "SELECT",
+            "WHERE",
+            "IS NULL",
+            "DATE Filtering",
+            "CASE",
+            "ORDER BY"
+          ],
+          "intro": "The support_tickets table tracks support tickets and their deadlines. Build a follow-up queue as of 2026-11-21. High-priority tickets should appear before Medium, then Low when they share the same due date.",
+          "tables": [
+            {
+              "name": "support_tickets",
+              "headers": [
+                "ticket_id",
+                "agent",
+                "due_date",
+                "priority",
+                "status",
+                "completed_at"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Ana",
+                  "2026-11-19",
+                  "High",
+                  "Open",
+                  null
+                ],
+                [
+                  2,
+                  "Ben",
+                  "2026-11-21",
+                  "Low",
+                  "Open",
+                  null
+                ],
+                [
+                  3,
+                  "Cara",
+                  "2026-11-20",
+                  "Medium",
+                  "Open",
+                  null
+                ],
+                [
+                  4,
+                  "Dev",
+                  "2026-11-20",
+                  "High",
+                  "Open",
+                  null
+                ],
+                [
+                  5,
+                  "Eva",
+                  "2026-11-20",
+                  "High",
+                  "Closed",
+                  "2026-11-20"
+                ],
+                [
+                  6,
+                  "Finn",
+                  "2026-11-22",
+                  "High",
+                  "Open",
+                  null
+                ],
+                [
+                  7,
+                  "Gia",
+                  "2026-11-19",
+                  "Medium",
+                  "Open",
+                  "2026-11-19"
+                ],
+                [
+                  8,
+                  "Hana",
+                  "2026-11-20",
+                  "Low",
+                  "Open",
+                  null
+                ],
+                [
+                  9,
+                  "Ivan",
+                  "2026-11-21",
+                  "High",
+                  "Open",
+                  null
+                ],
+                [
+                  10,
+                  "Jia",
+                  "2026-11-21",
+                  "Low",
+                  "Closed",
+                  null
+                ],
+                [
+                  11,
+                  "Kate",
+                  "2026-11-19",
+                  "Low",
+                  "Open",
+                  null
+                ],
+                [
+                  12,
+                  "Liam",
+                  "2026-11-21",
+                  "Medium",
+                  "Open",
+                  null
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write one SELECT query to find tickets with status = 'Open', completed_at IS NULL, and due_date on or before 2026-11-21 (inclusive).",
+            "Display exactly ticket_id, agent, due_date, and priority.",
+            "Sort by due_date ascending. For tickets on the same date, sort by custom priority order High, then Medium, then Low (not alphabetical order).",
+            "If tickets still tie, sort by ticket_id ascending. Do not display closed tickets or tickets due after 2026-11-21."
+          ],
+          "output": {
+            "headers": [
+              "ticket_id",
+              "agent",
+              "due_date",
+              "priority"
+            ],
+            "rows": [
+              [
+                1,
+                "Ana",
+                "2026-11-19",
+                "High"
+              ],
+              [
+                11,
+                "Kate",
+                "2026-11-19",
+                "Low"
+              ],
+              [
+                4,
+                "Dev",
+                "2026-11-20",
+                "High"
+              ],
+              [
+                3,
+                "Cara",
+                "2026-11-20",
+                "Medium"
+              ],
+              [
+                8,
+                "Hana",
+                "2026-11-20",
+                "Low"
+              ],
+              [
+                9,
+                "Ivan",
+                "2026-11-21",
+                "High"
+              ],
+              [
+                12,
+                "Liam",
+                "2026-11-21",
+                "Medium"
+              ],
+              [
+                2,
+                "Ben",
+                "2026-11-21",
+                "Low"
+              ]
+            ]
+          },
+          "note": "completed_at contains SQL NULL for unfinished tickets. Dates are DATE values. Treat 2026-11-21 as inclusive.",
+          "hint": "Use IS NULL rather than = NULL. A CASE expression in ORDER BY can map High, Medium, Low to numeric sort positions without changing the returned columns.",
+          "solution": "SELECT ticket_id, agent, due_date, priority\nFROM support_tickets\nWHERE status = 'Open'\n  AND completed_at IS NULL\n  AND due_date <= '2026-11-21'\nORDER BY due_date ASC,\n         CASE priority\n             WHEN 'High' THEN 1\n             WHEN 'Medium' THEN 2\n             WHEN 'Low' THEN 3\n             ELSE 4\n         END ASC,\n         ticket_id ASC;",
+          "steps": [
+            "WHERE status = 'Open' removes Eva and Jia because their tickets are Closed.",
+            "completed_at IS NULL removes Gia, whose ticket has a completion date despite an Open status.",
+            "due_date <= '2026-11-21' removes Finn, whose due date is November 22. Eight records remain.",
+            "First sort by due_date: November 19, then November 20, then November 21.",
+            "The ORDER BY CASE assigns High=1, Medium=2, Low=3; this puts Dev before Cara before Hana on November 20.",
+            "Finally ticket_id breaks any remaining ties, giving the exact eight rows shown."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bFROM\\s+support_tickets\\b",
+              "error": "Read records from support_tickets."
+            },
+            {
+              "pattern": "\\bstatus\\s*=\\s*['\"]Open['\"]",
+              "error": "Restrict to Open tickets."
+            },
+            {
+              "pattern": "\\bcompleted_at\\s+IS\\s+NULL\\b",
+              "error": "Check that completed_at IS NULL."
+            },
+            {
+              "pattern": "\\bdue_date\\s*<=\\s*['\"]2026-11-21['\"]",
+              "error": "Include deadlines up to and including 2026-11-21."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Order the results by due date, priority, and ticket ID."
+            },
+            {
+              "pattern": "\\bCASE\\b",
+              "error": "Use custom priority ordering rather than alphabetical priority order."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Customers Who Bought from Every Active Category",
+          "difficulty": "Medium",
+          "topics": [
+            "INNER JOIN",
+            "GROUP BY",
+            "HAVING",
+            "COUNT DISTINCT",
+            "Subquery"
+          ],
+          "intro": "An online store wants to reward customers who have purchased at least one item from every currently active category. Only items in Delivered orders count. Multiple items from one category should count as a single covered category.",
+          "tables": [
+            {
+              "name": "customers",
+              "headers": [
+                "customer_id",
+                "customer_name"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Asha"
+                ],
+                [
+                  2,
+                  "Bilal"
+                ],
+                [
+                  3,
+                  "Charu"
+                ],
+                [
+                  4,
+                  "Dev"
+                ],
+                [
+                  5,
+                  "Esha"
+                ]
+              ]
+            },
+            {
+              "name": "categories",
+              "headers": [
+                "category_id",
+                "category_name",
+                "is_active"
+              ],
+              "rows": [
+                [
+                  10,
+                  "Electronics",
+                  1
+                ],
+                [
+                  20,
+                  "Books",
+                  1
+                ],
+                [
+                  30,
+                  "Home",
+                  1
+                ],
+                [
+                  40,
+                  "Sports",
+                  0
+                ]
+              ]
+            },
+            {
+              "name": "products",
+              "headers": [
+                "product_id",
+                "product_name",
+                "category_id"
+              ],
+              "rows": [
+                [
+                  101,
+                  "Earbuds",
+                  10
+                ],
+                [
+                  102,
+                  "Mouse",
+                  10
+                ],
+                [
+                  201,
+                  "Novel",
+                  20
+                ],
+                [
+                  202,
+                  "Textbook",
+                  20
+                ],
+                [
+                  301,
+                  "Lamp",
+                  30
+                ],
+                [
+                  302,
+                  "Mug",
+                  30
+                ],
+                [
+                  401,
+                  "Yoga Mat",
+                  40
+                ]
+              ]
+            },
+            {
+              "name": "orders",
+              "headers": [
+                "order_id",
+                "customer_id",
+                "status"
+              ],
+              "rows": [
+                [
+                  1001,
+                  1,
+                  "Delivered"
+                ],
+                [
+                  1002,
+                  1,
+                  "Delivered"
+                ],
+                [
+                  1003,
+                  2,
+                  "Delivered"
+                ],
+                [
+                  1004,
+                  2,
+                  "Cancelled"
+                ],
+                [
+                  1005,
+                  3,
+                  "Delivered"
+                ],
+                [
+                  1006,
+                  4,
+                  "Delivered"
+                ],
+                [
+                  1007,
+                  5,
+                  "Delivered"
+                ],
+                [
+                  1008,
+                  5,
+                  "Delivered"
+                ],
+                [
+                  1009,
+                  3,
+                  "Delivered"
+                ]
+              ]
+            },
+            {
+              "name": "order_items",
+              "headers": [
+                "order_id",
+                "product_id",
+                "quantity"
+              ],
+              "rows": [
+                [
+                  1001,
+                  101,
+                  1
+                ],
+                [
+                  1001,
+                  201,
+                  1
+                ],
+                [
+                  1002,
+                  301,
+                  1
+                ],
+                [
+                  1003,
+                  102,
+                  2
+                ],
+                [
+                  1003,
+                  201,
+                  1
+                ],
+                [
+                  1004,
+                  301,
+                  1
+                ],
+                [
+                  1005,
+                  202,
+                  1
+                ],
+                [
+                  1005,
+                  301,
+                  1
+                ],
+                [
+                  1006,
+                  101,
+                  1
+                ],
+                [
+                  1006,
+                  302,
+                  1
+                ],
+                [
+                  1006,
+                  401,
+                  1
+                ],
+                [
+                  1007,
+                  101,
+                  1
+                ],
+                [
+                  1007,
+                  301,
+                  1
+                ],
+                [
+                  1008,
+                  201,
+                  1
+                ],
+                [
+                  1008,
+                  202,
+                  1
+                ],
+                [
+                  1009,
+                  201,
+                  1
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write one SELECT query that returns customers who have at least one product from EACH active category (categories.is_active = 1) in their Delivered orders.",
+            "Include category coverage across all Delivered orders for each customer; repeated purchases or different products in the same category must not increase the number of categories covered.",
+            "Products in inactive categories do not count, and items from Cancelled orders do not count.",
+            "Display exactly customer_id and customer_name, sorted by customer_name ascending and then customer_id ascending.",
+            "Do not hardcode the number of active categories; calculate that count from the categories table using a subquery."
+          ],
+          "output": {
+            "headers": [
+              "customer_id",
+              "customer_name"
+            ],
+            "rows": [
+              [
+                1,
+                "Asha"
+              ],
+              [
+                5,
+                "Esha"
+              ]
+            ]
+          },
+          "hint": "Join customers, orders, order_items, products, and categories. Filter to Delivered orders and active categories. Compare COUNT(DISTINCT category_id) for each customer against a subquery that counts active categories.",
+          "solution": "SELECT c.customer_id, c.customer_name\nFROM customers c\nJOIN orders o ON o.customer_id = c.customer_id\nJOIN order_items oi ON oi.order_id = o.order_id\nJOIN products p ON p.product_id = oi.product_id\nJOIN categories cat ON cat.category_id = p.category_id\nWHERE o.status = 'Delivered'\n  AND cat.is_active = 1\nGROUP BY c.customer_id, c.customer_name\nHAVING COUNT(DISTINCT cat.category_id) = (\n    SELECT COUNT(*)\n    FROM categories\n    WHERE is_active = 1\n)\nORDER BY c.customer_name ASC, c.customer_id ASC;",
+          "steps": [
+            "The categories table has exactly three active categories: Electronics (10), Books (20), and Home (30); Sports (40) is inactive.",
+            "Join each customer to the products in their orders, and keep only Delivered orders and active product categories.",
+            "Asha covers Electronics and Books in order 1001 and Home in order 1002, so she covers all 3 active categories.",
+            "Bilal covers Electronics and Books in Delivered order 1003; order 1004's Home item is Cancelled, so he covers only 2.",
+            "Charu covers Books and Home, even across orders 1005 and 1009, but has no Electronics purchase. Dev covers Electronics and Home; the Sports item does not count.",
+            "Esha covers Electronics and Home in order 1007 and Books in order 1008; two Books items still count as one distinct category.",
+            "HAVING compares each customer's COUNT(DISTINCT active category_id) with the active-category count returned by the subquery, leaving Asha and Esha."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bFROM\\s+customers\\b",
+              "error": "Start from customers."
+            },
+            {
+              "pattern": "\\bJOIN\\s+orders\\b",
+              "error": "Join orders to customers."
+            },
+            {
+              "pattern": "\\bJOIN\\s+order_items\\b",
+              "error": "Use order_items to find purchased products."
+            },
+            {
+              "pattern": "\\bJOIN\\s+products\\b",
+              "error": "Join products to determine category."
+            },
+            {
+              "pattern": "\\bJOIN\\s+categories\\b",
+              "error": "Join categories to check which ones are active."
+            },
+            {
+              "pattern": "\\bstatus\\s*=\\s*['\"]Delivered['\"]",
+              "error": "Only Delivered orders qualify."
+            },
+            {
+              "pattern": "\\bis_active\\s*=\\s*(?:1|TRUE)\\b",
+              "error": "Only active categories count."
+            },
+            {
+              "pattern": "\\bGROUP\\s+BY\\b",
+              "error": "Group items by customer."
+            },
+            {
+              "pattern": "\\bHAVING\\b",
+              "error": "Use HAVING to require complete coverage."
+            },
+            {
+              "pattern": "\\bCOUNT\\s*\\(\\s*DISTINCT\\b",
+              "error": "Count distinct categories, not individual items."
+            },
+            {
+              "pattern": "\\(\\s*SELECT\\s+COUNT\\s*\\(\\s*\\*\\s*\\)",
+              "error": "Get the number of active categories from a subquery rather than hardcoding it."
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Idle Days Between Maintenance Sessions",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "LEAD",
+            "PARTITION BY",
+            "DATEDIFF",
+            "Window Functions"
+          ],
+          "intro": "A factory logs maintenance sessions for each machine. Find idle periods of at least two full calendar days between consecutive Completed sessions on the same machine. Session start_date and end_date are inclusive and Completed sessions for a machine never overlap.",
+          "tables": [
+            {
+              "name": "maintenance_sessions",
+              "headers": [
+                "session_id",
+                "machine_id",
+                "start_date",
+                "end_date",
+                "status"
+              ],
+              "rows": [
+                [
+                  11,
+                  1,
+                  "2026-11-01",
+                  "2026-11-03",
+                  "Completed"
+                ],
+                [
+                  12,
+                  1,
+                  "2026-11-07",
+                  "2026-11-08",
+                  "Completed"
+                ],
+                [
+                  13,
+                  1,
+                  "2026-11-10",
+                  "2026-11-11",
+                  "Completed"
+                ],
+                [
+                  14,
+                  1,
+                  "2026-11-16",
+                  "2026-11-17",
+                  "Completed"
+                ],
+                [
+                  21,
+                  2,
+                  "2026-11-02",
+                  "2026-11-04",
+                  "Completed"
+                ],
+                [
+                  22,
+                  2,
+                  "2026-11-05",
+                  "2026-11-06",
+                  "Cancelled"
+                ],
+                [
+                  23,
+                  2,
+                  "2026-11-09",
+                  "2026-11-10",
+                  "Completed"
+                ],
+                [
+                  24,
+                  2,
+                  "2026-11-12",
+                  "2026-11-13",
+                  "Completed"
+                ],
+                [
+                  31,
+                  3,
+                  "2026-11-01",
+                  "2026-11-02",
+                  "Completed"
+                ],
+                [
+                  32,
+                  3,
+                  "2026-11-06",
+                  "2026-11-07",
+                  "Completed"
+                ],
+                [
+                  33,
+                  3,
+                  "2026-11-11",
+                  "2026-11-13",
+                  "Completed"
+                ],
+                [
+                  34,
+                  3,
+                  "2026-11-08",
+                  "2026-11-10",
+                  "Cancelled"
+                ],
+                [
+                  41,
+                  4,
+                  "2026-11-03",
+                  "2026-11-04",
+                  "Completed"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a CTE and LEAD() OVER (PARTITION BY machine_id ORDER BY start_date, session_id) to find the next Completed session start date for each Completed session on the same machine.",
+            "Ignore Cancelled sessions entirely when determining which sessions are consecutive. A machine's final Completed session has no following Completed session and must not appear.",
+            "Count FULL idle days strictly between the current session's inclusive end_date and the next session's inclusive start_date: idle_days = DATEDIFF(next_start_date, end_date) - 1.",
+            "Return only rows where idle_days >= 2.",
+            "Display machine_id, session_id (the earlier session), end_date, next_start_date, and idle_days, ordered by machine_id ascending, end_date ascending, and session_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "machine_id",
+              "session_id",
+              "end_date",
+              "next_start_date",
+              "idle_days"
+            ],
+            "rows": [
+              [
+                1,
+                11,
+                "2026-11-03",
+                "2026-11-07",
+                3
+              ],
+              [
+                1,
+                13,
+                "2026-11-11",
+                "2026-11-16",
+                4
+              ],
+              [
+                2,
+                21,
+                "2026-11-04",
+                "2026-11-09",
+                4
+              ],
+              [
+                3,
+                31,
+                "2026-11-02",
+                "2026-11-06",
+                3
+              ],
+              [
+                3,
+                32,
+                "2026-11-07",
+                "2026-11-11",
+                3
+              ]
+            ]
+          },
+          "note": "For example, if a session ends November 3 and the next starts November 7, the full idle days are November 4, 5 and 6: exactly 3 days.",
+          "hint": "Filter to Completed sessions BEFORE applying LEAD. In a CTE, calculate the next session's start_date per machine, then compute DATEDIFF(next_start_date, end_date) - 1 in the outer query.",
+          "solution": "WITH completed_sessions AS (\n    SELECT machine_id,\n           session_id,\n           start_date,\n           end_date,\n           LEAD(start_date) OVER (\n               PARTITION BY machine_id\n               ORDER BY start_date, session_id\n           ) AS next_start_date\n    FROM maintenance_sessions\n    WHERE status = 'Completed'\n)\nSELECT machine_id,\n       session_id,\n       end_date,\n       next_start_date,\n       DATEDIFF(next_start_date, end_date) - 1 AS idle_days\nFROM completed_sessions\nWHERE next_start_date IS NOT NULL\n  AND DATEDIFF(next_start_date, end_date) - 1 >= 2\nORDER BY machine_id ASC, end_date ASC, session_id ASC;",
+          "steps": [
+            "The CTE removes Cancelled sessions 22 and 34 before applying LEAD, so they cannot interrupt a pair of Completed sessions.",
+            "LEAD(start_date) looks ahead to the next Completed session within each machine, ordered by start_date and session_id; for the last Completed session of each machine it returns NULL.",
+            "Machine 1: session 11 ends Nov 3 and session 12 starts Nov 7 (3 full idle days); session 12 -> 13 has only Nov 9 (1 day); session 13 -> 14 has Nov 12–15 (4 days).",
+            "Machine 2: session 21 ends Nov 4 and session 23 starts Nov 9. Ignore Cancelled session 22, giving 4 full idle days. Session 23 -> 24 has only Nov 11 (1 day).",
+            "Machine 3: session 31 -> 32 has Nov 3–5 (3 days), and session 32 -> 33 has Nov 8–10 (3 days), even though Cancelled session 34 overlaps that period.",
+            "Machine 4 has just one Completed session. The NULL next_start_date and all intervals shorter than two full days are excluded, leaving five rows."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bWITH\\b",
+              "error": "Use a CTE to prepare completed sessions with their next start dates."
+            },
+            {
+              "pattern": "\\bFROM\\s+maintenance_sessions\\b",
+              "error": "Read from maintenance_sessions."
+            },
+            {
+              "pattern": "\\bstatus\\s*=\\s*['\"]Completed['\"]",
+              "error": "Ignore Cancelled sessions before LEAD is calculated."
+            },
+            {
+              "pattern": "\\bLEAD\\s*\\(",
+              "error": "Find the next session using LEAD."
+            },
+            {
+              "pattern": "\\bPARTITION\\s+BY\\s+machine_id\\b",
+              "error": "Partition sessions by machine_id."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\s+start_date\\s*,\\s*session_id\\b",
+              "error": "Order the LEAD window by start_date, then session_id."
+            },
+            {
+              "pattern": "\\bDATEDIFF\\s*\\(",
+              "error": "Use DATEDIFF to calculate idle days."
+            },
+            {
+              "pattern": "\\bnext_start_date\\s+IS\\s+NOT\\s+NULL\\b",
+              "error": "Exclude the final Completed session for each machine."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\s+machine_id\\b",
+              "error": "Sort the final result by machine_id then end_date then session_id."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
