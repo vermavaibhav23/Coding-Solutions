@@ -3039,6 +3039,577 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-22",
+      "day": 6,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Unified Customer Purchase Timeline",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "SELECT",
+            "WHERE",
+            "UNION ALL",
+            "Aliases",
+            "ORDER BY"
+          ],
+          "intro": "An online retailer stores purchases made online and in physical stores in separate tables. Order IDs are unique within each channel, but the same ID may appear in both tables. Build one timeline for a customer without losing purchases from either channel.",
+          "tables": [
+            {
+              "name": "online_orders",
+              "headers": [
+                "order_id",
+                "customer_id",
+                "purchased_at",
+                "amount"
+              ],
+              "rows": [
+                [
+                  501,
+                  101,
+                  "2026-11-06 10:00:00",
+                  1200
+                ],
+                [
+                  502,
+                  102,
+                  "2026-11-08 12:00:00",
+                  800
+                ],
+                [
+                  503,
+                  101,
+                  "2026-10-30 16:00:00",
+                  500
+                ],
+                [
+                  504,
+                  101,
+                  "2026-11-04 09:00:00",
+                  640
+                ],
+                [
+                  505,
+                  101,
+                  "2026-11-06 10:00:00",
+                  400
+                ],
+                [
+                  506,
+                  101,
+                  "2026-11-01 00:00:00",
+                  250
+                ]
+              ]
+            },
+            {
+              "name": "store_orders",
+              "headers": [
+                "order_id",
+                "customer_id",
+                "purchased_at",
+                "amount"
+              ],
+              "rows": [
+                [
+                  501,
+                  101,
+                  "2026-11-06 10:00:00",
+                  300
+                ],
+                [
+                  502,
+                  101,
+                  "2026-11-02 14:00:00",
+                  900
+                ],
+                [
+                  503,
+                  102,
+                  "2026-11-07 12:00:00",
+                  700
+                ],
+                [
+                  504,
+                  101,
+                  "2026-10-29 09:00:00",
+                  100
+                ],
+                [
+                  505,
+                  101,
+                  "2026-11-01 00:00:00",
+                  600
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use ONE SELECT statement with UNION ALL to combine purchases from online_orders and store_orders; do not use UNION or DISTINCT.",
+            "Include only customer_id = 101 and purchases made on or after '2026-11-01 00:00:00' (inclusive). Apply the filters to BOTH tables.",
+            "Display exactly source, reference_id, purchased_at, amount, in that order. source must be the literal 'Online' for online_orders and 'Store' for store_orders; rename each order_id to reference_id. Do not display customer_id.",
+            "Sort the combined result by purchased_at descending. For matching timestamps, sort source ascending, then reference_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "source",
+              "reference_id",
+              "purchased_at",
+              "amount"
+            ],
+            "rows": [
+              [
+                "Online",
+                501,
+                "2026-11-06 10:00:00",
+                1200
+              ],
+              [
+                "Online",
+                505,
+                "2026-11-06 10:00:00",
+                400
+              ],
+              [
+                "Store",
+                501,
+                "2026-11-06 10:00:00",
+                300
+              ],
+              [
+                "Online",
+                504,
+                "2026-11-04 09:00:00",
+                640
+              ],
+              [
+                "Store",
+                502,
+                "2026-11-02 14:00:00",
+                900
+              ],
+              [
+                "Online",
+                506,
+                "2026-11-01 00:00:00",
+                250
+              ],
+              [
+                "Store",
+                505,
+                "2026-11-01 00:00:00",
+                600
+              ]
+            ]
+          },
+          "hint": "Write one SELECT for each table with the same four output columns and compatible types, then connect them with UNION ALL. Put one ORDER BY at the very end.",
+          "solution": "SELECT 'Online' AS source, order_id AS reference_id, purchased_at, amount\nFROM online_orders\nWHERE customer_id = 101 AND purchased_at >= '2026-11-01 00:00:00'\nUNION ALL\nSELECT 'Store' AS source, order_id AS reference_id, purchased_at, amount\nFROM store_orders\nWHERE customer_id = 101 AND purchased_at >= '2026-11-01 00:00:00'\nORDER BY purchased_at DESC, source ASC, reference_id ASC;",
+          "steps": [
+            "The online SELECT keeps only customer 101's November 1 onward rows: 501, 504, 505 and 506. It excludes customer 102 and the October 30 purchase.",
+            "The store SELECT keeps store orders 501, 502 and 505. It excludes customer 102 and the October 29 purchase.",
+            "Each SELECT produces identical column positions, adding its channel label and renaming order_id to reference_id.",
+            "UNION ALL appends the two sets, giving 7 purchases; order ID 501 from Online and Store remains two separate records.",
+            "ORDER BY places November 6 purchases first; 'Online' precedes 'Store' for matching timestamps, then reference_id breaks ties. Purchases exactly at midnight on November 1 are included."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bFROM\\s+online_orders\\b",
+              "error": "Read purchases from online_orders."
+            },
+            {
+              "pattern": "\\bFROM\\s+store_orders\\b",
+              "error": "Read purchases from store_orders."
+            },
+            {
+              "pattern": "\\bUNION\\s+ALL\\b",
+              "error": "Use UNION ALL to retain all channel purchases."
+            },
+            {
+              "pattern": "['\"]Online['\"]\\s+AS\\s+source\\b",
+              "error": "Label online purchases with 'Online' AS source."
+            },
+            {
+              "pattern": "['\"]Store['\"]\\s+AS\\s+source\\b",
+              "error": "Label store purchases with 'Store' AS source."
+            },
+            {
+              "pattern": "\\border_id\\s+AS\\s+reference_id\\b",
+              "error": "Rename order_id to reference_id."
+            },
+            {
+              "pattern": "\\bcustomer_id\\s*=\\s*101\\b",
+              "error": "Filter for customer 101 in both SELECT branches."
+            },
+            {
+              "pattern": "\\bpurchased_at\\s*>=\\s*['\"]2026-11-01(?: 00:00:00)?['\"]",
+              "error": "Include only purchases on or after November 1, 2026."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\s+purchased_at\\s+DESC\\s*,\\s*source\\s+ASC\\s*,\\s*reference_id\\s+ASC\\b",
+              "error": "Sort by date descending, then source and reference_id ascending."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Delete Expired Unredeemed Coupons",
+          "difficulty": "Medium",
+          "topics": [
+            "DELETE",
+            "WHERE",
+            "NOT EXISTS",
+            "Correlated Subquery",
+            "DATE"
+          ],
+          "intro": "A shopping platform wants to clean up expired coupons. Some expired coupons have already been redeemed, and those coupon records must be retained for transaction history. Assume coupon_redemptions.coupon_id references coupons.coupon_id.",
+          "tables": [
+            {
+              "name": "coupons",
+              "headers": [
+                "coupon_id",
+                "coupon_code",
+                "expires_on"
+              ],
+              "rows": [
+                [
+                  1,
+                  "FLASH10",
+                  "2026-11-20"
+                ],
+                [
+                  2,
+                  "SAVE15",
+                  "2026-11-21"
+                ],
+                [
+                  3,
+                  "NEW25",
+                  "2026-11-22"
+                ],
+                [
+                  4,
+                  "OLD20",
+                  "2026-10-31"
+                ],
+                [
+                  5,
+                  "HOLIDAY",
+                  "2026-12-01"
+                ],
+                [
+                  6,
+                  "WELCOME",
+                  "2026-11-20"
+                ],
+                [
+                  7,
+                  "EXPIREDX",
+                  "2026-11-21"
+                ],
+                [
+                  8,
+                  "PREV",
+                  "2026-11-18"
+                ]
+              ]
+            },
+            {
+              "name": "coupon_redemptions",
+              "headers": [
+                "redemption_id",
+                "coupon_id",
+                "redeemed_on"
+              ],
+              "rows": [
+                [
+                  201,
+                  2,
+                  "2026-11-19"
+                ],
+                [
+                  202,
+                  6,
+                  "2026-11-15"
+                ],
+                [
+                  203,
+                  8,
+                  "2026-11-17"
+                ],
+                [
+                  204,
+                  2,
+                  "2026-11-20"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write ONE MySQL 8.0 DELETE statement that deletes coupons only if expires_on is strictly before '2026-11-22' AND the coupon has never appeared in coupon_redemptions.",
+            "Use a correlated NOT EXISTS subquery to check that no redemption exists for the coupon. Do not use a hardcoded list of coupon IDs.",
+            "Keep expired coupons that have at least one redemption, and keep all coupons expiring on or after November 22.",
+            "The expected output shows the coupons table after the deletion, displayed in coupon_id ascending order. Write only the DELETE statement, not a SELECT query."
+          ],
+          "output": {
+            "headers": [
+              "coupon_id",
+              "coupon_code",
+              "expires_on"
+            ],
+            "rows": [
+              [
+                2,
+                "SAVE15",
+                "2026-11-21"
+              ],
+              [
+                3,
+                "NEW25",
+                "2026-11-22"
+              ],
+              [
+                5,
+                "HOLIDAY",
+                "2026-12-01"
+              ],
+              [
+                6,
+                "WELCOME",
+                "2026-11-20"
+              ],
+              [
+                8,
+                "PREV",
+                "2026-11-18"
+              ]
+            ]
+          },
+          "hint": "Start with DELETE FROM coupons. Add a WHERE condition for expiry, and a NOT EXISTS subquery that looks for a matching coupon_id in coupon_redemptions.",
+          "solution": "DELETE FROM coupons\nWHERE expires_on < '2026-11-22'\n  AND NOT EXISTS (\n    SELECT 1\n    FROM coupon_redemptions r\n    WHERE r.coupon_id = coupons.coupon_id\n  );",
+          "steps": [
+            "First inspect the cutoff: coupon IDs 1, 2, 4, 6, 7 and 8 expire before November 22; coupon 3 expires on the cutoff itself and must stay.",
+            "For each expired coupon, the correlated NOT EXISTS checks whether coupon_redemptions has at least one matching coupon_id.",
+            "Coupons 2, 6 and 8 have redemptions, so the subquery finds rows and NOT EXISTS becomes false; they are protected.",
+            "Coupons 1, 4 and 7 have no matching redemption, so NOT EXISTS is true and DELETE removes those three rows.",
+            "The table left behind contains coupon IDs 2, 3, 5, 6 and 8. The expected display is sorted by coupon_id solely for readability."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bDELETE\\s+FROM\\s+coupons\\b",
+              "error": "Begin with DELETE FROM coupons."
+            },
+            {
+              "pattern": "\\bexpires_on\\s*<\\s*['\"]2026-11-22['\"]",
+              "error": "Delete only coupons expiring strictly before November 22."
+            },
+            {
+              "pattern": "\\bNOT\\s+EXISTS\\s*\\(",
+              "error": "Use a correlated NOT EXISTS subquery."
+            },
+            {
+              "pattern": "\\bFROM\\s+coupon_redemptions\\b",
+              "error": "Check the coupon_redemptions table."
+            },
+            {
+              "pattern": "\\bcoupon_id\\s*=\\s*(?:coupons\\.)?coupon_id\\b",
+              "error": "Correlate redemptions to the outer coupon by coupon_id."
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Second-Highest Distinct Exam Score per Course",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "DENSE_RANK",
+            "PARTITION BY",
+            "Window Functions",
+            "Distinct Ranking"
+          ],
+          "intro": "The exam_scores table records each student's result in a course. Find every student who scored the second-highest DISTINCT score in their course, including ties. Courses with only one distinct score should not appear.",
+          "tables": [
+            {
+              "name": "exam_scores",
+              "headers": [
+                "score_id",
+                "student_name",
+                "course_name",
+                "score"
+              ],
+              "rows": [
+                [
+                  101,
+                  "Asha",
+                  "DBMS",
+                  95
+                ],
+                [
+                  102,
+                  "Ravi",
+                  "DBMS",
+                  95
+                ],
+                [
+                  103,
+                  "Priya",
+                  "DBMS",
+                  88
+                ],
+                [
+                  104,
+                  "Gopal",
+                  "DBMS",
+                  82
+                ],
+                [
+                  105,
+                  "Mahi",
+                  "OS",
+                  91
+                ],
+                [
+                  106,
+                  "Diya",
+                  "OS",
+                  87
+                ],
+                [
+                  107,
+                  "Imran",
+                  "OS",
+                  87
+                ],
+                [
+                  108,
+                  "Karan",
+                  "OS",
+                  80
+                ],
+                [
+                  109,
+                  "Siya",
+                  "Networks",
+                  78
+                ],
+                [
+                  110,
+                  "Om",
+                  "Networks",
+                  78
+                ],
+                [
+                  111,
+                  "Sara",
+                  "Networks",
+                  70
+                ],
+                [
+                  112,
+                  "Uma",
+                  "AI",
+                  99
+                ],
+                [
+                  113,
+                  "Vinay",
+                  "AI",
+                  99
+                ],
+                [
+                  114,
+                  "Neha",
+                  "DBMS",
+                  88
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a WITH CTE and DENSE_RANK() window function to rank scores within each course_name, with highest score ranked 1.",
+            "Return every student whose rank equals 2 (the second-highest DISTINCT score) in that course, including all tied students. Do not use ROW_NUMBER() or LIMIT to pick only one student.",
+            "A course with fewer than two distinct scores must return no rows, even if multiple students tie for first place.",
+            "Display exactly course_name, student_name, score; do not display the rank or score_id. Sort by course_name ascending, then student_name ascending."
+          ],
+          "output": {
+            "headers": [
+              "course_name",
+              "student_name",
+              "score"
+            ],
+            "rows": [
+              [
+                "DBMS",
+                "Neha",
+                88
+              ],
+              [
+                "DBMS",
+                "Priya",
+                88
+              ],
+              [
+                "Networks",
+                "Sara",
+                70
+              ],
+              [
+                "OS",
+                "Diya",
+                87
+              ],
+              [
+                "OS",
+                "Imran",
+                87
+              ]
+            ]
+          },
+          "hint": "Inside a CTE, calculate DENSE_RANK() OVER (PARTITION BY course_name ORDER BY score DESC). Then filter the rank in an outer SELECT.",
+          "solution": "WITH ranked AS (\n    SELECT course_name, student_name, score,\n           DENSE_RANK() OVER (PARTITION BY course_name ORDER BY score DESC) AS score_rank\n    FROM exam_scores\n)\nSELECT course_name, student_name, score\nFROM ranked\nWHERE score_rank = 2\nORDER BY course_name ASC, student_name ASC;",
+          "steps": [
+            "PARTITION BY course_name creates a separate ranking for AI, DBMS, Networks and OS.",
+            "Within DBMS, 95 receives rank 1 for both students, 88 receives rank 2 for Neha and Priya, and 82 receives rank 3. DENSE_RANK does not skip rank numbers after ties.",
+            "Within Networks, score 78 is rank 1 for Siya and Om, while Sara's 70 is rank 2.",
+            "Within OS, 91 is rank 1 and 87 is rank 2 for Diya and Imran. AI has only one distinct score (99), so it has no rank-2 row.",
+            "The outer WHERE score_rank = 2 returns all five tied/untied second-highest scorers; the final ORDER BY sorts courses and student names alphabetically."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bWITH\\s+\\w+\\s+AS\\s*\\(",
+              "error": "Use a WITH CTE for the ranking."
+            },
+            {
+              "pattern": "\\bDENSE_RANK\\s*\\(\\s*\\)\\s*OVER\\s*\\(",
+              "error": "Calculate DENSE_RANK() OVER (...)."
+            },
+            {
+              "pattern": "\\bPARTITION\\s+BY\\s+course_name\\b",
+              "error": "Rank each course separately using PARTITION BY course_name."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\s+score\\s+DESC",
+              "error": "Rank scores from highest to lowest."
+            },
+            {
+              "pattern": "\\bscore_rank\\s*=\\s*2\\b",
+              "error": "Return only the second distinct rank."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\s+course_name\\s+ASC\\s*,\\s*student_name\\s+ASC",
+              "error": "Sort by course_name and student_name ascending."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
