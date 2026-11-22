@@ -3610,6 +3610,733 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-23",
+      "day": 7,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Active Projects With No Open Tasks",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "LEFT JOIN",
+            "ON vs WHERE",
+            "IS NULL",
+            "ORDER BY"
+          ],
+          "intro": "A project may have many tasks, no tasks, or tasks that are no longer Open. The manager wants all currently Active projects that have zero Open tasks.",
+          "tables": [
+            {
+              "name": "projects",
+              "headers": [
+                "project_id",
+                "project_name",
+                "owner",
+                "status"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Atlas",
+                  "Ravi",
+                  "Active"
+                ],
+                [
+                  2,
+                  "Beacon",
+                  "Mira",
+                  "Active"
+                ],
+                [
+                  3,
+                  "Comet",
+                  "Tara",
+                  "Active"
+                ],
+                [
+                  4,
+                  "Delta",
+                  "Isha",
+                  "Active"
+                ],
+                [
+                  5,
+                  "Echo",
+                  "Sami",
+                  "Paused"
+                ],
+                [
+                  6,
+                  "Flux",
+                  "Noor",
+                  "Active"
+                ],
+                [
+                  7,
+                  "Grove",
+                  "Ajay",
+                  "Active"
+                ]
+              ]
+            },
+            {
+              "name": "tasks",
+              "headers": [
+                "task_id",
+                "project_id",
+                "status"
+              ],
+              "rows": [
+                [
+                  101,
+                  1,
+                  "Done"
+                ],
+                [
+                  102,
+                  1,
+                  "Done"
+                ],
+                [
+                  103,
+                  2,
+                  "Open"
+                ],
+                [
+                  104,
+                  2,
+                  "Done"
+                ],
+                [
+                  105,
+                  3,
+                  "In Progress"
+                ],
+                [
+                  106,
+                  3,
+                  "Done"
+                ],
+                [
+                  107,
+                  5,
+                  "Open"
+                ],
+                [
+                  108,
+                  6,
+                  "Closed"
+                ],
+                [
+                  109,
+                  7,
+                  "Open"
+                ],
+                [
+                  110,
+                  7,
+                  "Open"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a LEFT JOIN to find Active projects with NO task whose status is exactly 'Open'.",
+            "A project with zero tasks must also be included if its project status is Active.",
+            "Display exactly project_name and owner, with one row per qualifying project.",
+            "Sort by project_name in ascending alphabetical order.",
+            "Do not use NOT EXISTS or a hardcoded list of project IDs; solve this with LEFT JOIN and IS NULL."
+          ],
+          "output": {
+            "headers": [
+              "project_name",
+              "owner"
+            ],
+            "rows": [
+              [
+                "Atlas",
+                "Ravi"
+              ],
+              [
+                "Comet",
+                "Tara"
+              ],
+              [
+                "Delta",
+                "Isha"
+              ],
+              [
+                "Flux",
+                "Noor"
+              ]
+            ]
+          },
+          "hint": "Put the task status condition in the LEFT JOIN's ON clause. Then use a NULL check in WHERE to keep only projects with no matching Open task. Keep the project status filter in WHERE.",
+          "solution": "SELECT p.project_name, p.owner\nFROM projects p\nLEFT JOIN tasks t\n    ON t.project_id = p.project_id AND t.status = 'Open'\nWHERE p.status = 'Active' AND t.task_id IS NULL\nORDER BY p.project_name ASC;",
+          "steps": [
+            "Start with all seven projects. Only six have status Active; Echo is Paused and will be excluded.",
+            "LEFT JOIN considers only tasks whose status is Open, because that condition is inside ON.",
+            "Beacon matches task 103 and Grove matches tasks 109 and 110, so their joined task IDs are not NULL.",
+            "Atlas has Done tasks only; Comet has In Progress and Done tasks; Flux has Closed tasks only; Delta has no tasks. All four have NULL on the task side of this LEFT JOIN.",
+            "WHERE keeps the four Active projects with t.task_id IS NULL.",
+            "ORDER BY project_name ASC gives Atlas, Comet, Delta, Flux."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bLEFT\\s+(?:OUTER\\s+)?JOIN\\s+tasks\\b",
+              "error": "Use a LEFT JOIN with tasks."
+            },
+            {
+              "pattern": "\\bON\\b",
+              "error": "Add the join condition in ON."
+            },
+            {
+              "pattern": "(?:\\bt\\.)?status\\s*=\\s*['\"]Open['\"]",
+              "error": "Match only Open tasks in the LEFT JOIN."
+            },
+            {
+              "pattern": "\\bWHERE\\b",
+              "error": "Use WHERE to filter Active projects and missing Open tasks."
+            },
+            {
+              "pattern": "(?:\\bp\\.)?status\\s*=\\s*['\"]Active['\"]",
+              "error": "Restrict the project to Active status."
+            },
+            {
+              "pattern": "\\bIS\\s+NULL\\b",
+              "error": "Use IS NULL to keep projects without matching tasks."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Order project names alphabetically."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Campaign Conversion Rate Without Double Counting",
+          "difficulty": "Medium",
+          "topics": [
+            "JOIN",
+            "LEFT JOIN",
+            "COUNT DISTINCT",
+            "GROUP BY",
+            "HAVING",
+            "ROUND"
+          ],
+          "intro": "Each campaign generates leads. A lead may make more than one purchase, creating multiple rows in conversions. Count converted LEADS, not conversion events, when measuring campaign success.",
+          "tables": [
+            {
+              "name": "campaigns",
+              "headers": [
+                "campaign_id",
+                "campaign_name",
+                "channel"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Fall Launch",
+                  "Email"
+                ],
+                [
+                  2,
+                  "Retarget",
+                  "Ads"
+                ],
+                [
+                  3,
+                  "Referral Push",
+                  "Referral"
+                ],
+                [
+                  4,
+                  "Winter Preview",
+                  "Email"
+                ],
+                [
+                  5,
+                  "Organic Trial",
+                  "Organic"
+                ]
+              ]
+            },
+            {
+              "name": "leads",
+              "headers": [
+                "lead_id",
+                "campaign_id"
+              ],
+              "rows": [
+                [
+                  11,
+                  1
+                ],
+                [
+                  12,
+                  1
+                ],
+                [
+                  13,
+                  1
+                ],
+                [
+                  14,
+                  1
+                ],
+                [
+                  21,
+                  2
+                ],
+                [
+                  22,
+                  2
+                ],
+                [
+                  23,
+                  2
+                ],
+                [
+                  31,
+                  3
+                ],
+                [
+                  32,
+                  3
+                ],
+                [
+                  33,
+                  3
+                ],
+                [
+                  34,
+                  3
+                ],
+                [
+                  41,
+                  4
+                ],
+                [
+                  42,
+                  4
+                ]
+              ]
+            },
+            {
+              "name": "conversions",
+              "headers": [
+                "conversion_id",
+                "lead_id",
+                "purchase_date"
+              ],
+              "rows": [
+                [
+                  100,
+                  11,
+                  "2026-11-02"
+                ],
+                [
+                  101,
+                  11,
+                  "2026-11-05"
+                ],
+                [
+                  102,
+                  12,
+                  "2026-11-04"
+                ],
+                [
+                  103,
+                  21,
+                  "2026-11-06"
+                ],
+                [
+                  104,
+                  31,
+                  "2026-11-06"
+                ],
+                [
+                  105,
+                  32,
+                  "2026-11-07"
+                ],
+                [
+                  106,
+                  33,
+                  "2026-11-08"
+                ],
+                [
+                  107,
+                  34,
+                  "2026-11-08"
+                ],
+                [
+                  108,
+                  41,
+                  "2026-11-09"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Return campaigns that generated at least 3 distinct leads AND converted at least 50% of their leads.",
+            "A converted lead is a lead with at least one row in conversions. Multiple purchases by the same lead must count only once.",
+            "Display exactly campaign_name, leads_count, converted_leads, and conversion_rate. The rate must be a percentage (0 to 100), rounded to 2 decimal places.",
+            "Use JOINs, GROUP BY and HAVING (not a hardcoded campaign list) to filter qualifying campaigns.",
+            "Sort by conversion_rate descending, then campaign_name alphabetically ascending."
+          ],
+          "output": {
+            "headers": [
+              "campaign_name",
+              "leads_count",
+              "converted_leads",
+              "conversion_rate"
+            ],
+            "rows": [
+              [
+                "Referral Push",
+                4,
+                4,
+                "100.00"
+              ],
+              [
+                "Fall Launch",
+                4,
+                2,
+                "50.00"
+              ]
+            ]
+          },
+          "note": "conversion_rate is expressed as a percent to two decimal places; for example, 50.00 means 50%, not 0.50.",
+          "hint": "JOIN campaigns to leads, then LEFT JOIN conversions. Avoid inflating counts when one lead has multiple conversion rows: COUNT(DISTINCT ...). Use HAVING after GROUP BY for both the minimum lead count and rate threshold.",
+          "solution": "SELECT c.campaign_name,\n       COUNT(DISTINCT l.lead_id) AS leads_count,\n       COUNT(DISTINCT v.lead_id) AS converted_leads,\n       ROUND(100.0 * COUNT(DISTINCT v.lead_id) / COUNT(DISTINCT l.lead_id), 2) AS conversion_rate\nFROM campaigns c\nJOIN leads l ON l.campaign_id = c.campaign_id\nLEFT JOIN conversions v ON v.lead_id = l.lead_id\nGROUP BY c.campaign_id, c.campaign_name\nHAVING COUNT(DISTINCT l.lead_id) >= 3\n   AND 100.0 * COUNT(DISTINCT v.lead_id) / COUNT(DISTINCT l.lead_id) >= 50\nORDER BY conversion_rate DESC, c.campaign_name ASC;",
+          "steps": [
+            "JOIN links each campaign to its leads. Organic Trial has no leads, so it does not enter the grouped results.",
+            "LEFT JOIN links each lead to zero or more conversion events. Lead 11 has two conversion records, so it appears twice in the joined rows.",
+            "COUNT(DISTINCT l.lead_id) prevents the duplicate conversion event from inflating the number of Fall Launch leads.",
+            "COUNT(DISTINCT v.lead_id) counts only leads that made at least one purchase: Fall Launch 2, Retarget 1, Referral Push 4, Winter Preview 1.",
+            "The rates are Fall Launch 2/4 = 50%, Retarget 1/3 = 33.33%, Referral Push 4/4 = 100%, and Winter Preview 1/2 = 50%.",
+            "HAVING removes Retarget because its conversion rate is below 50%, and Winter Preview because it has fewer than 3 leads.",
+            "ORDER BY returns Referral Push first (100.00), then Fall Launch (50.00)."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bJOIN\\s+leads\\b",
+              "error": "Join campaigns to leads."
+            },
+            {
+              "pattern": "\\bLEFT\\s+(?:OUTER\\s+)?JOIN\\s+conversions\\b",
+              "error": "Preserve unconverted leads with a LEFT JOIN to conversions."
+            },
+            {
+              "pattern": "\\bCOUNT\\s*\\(\\s*DISTINCT\\b",
+              "error": "Use COUNT(DISTINCT ...) to avoid double-counting leads."
+            },
+            {
+              "pattern": "\\bGROUP\\s+BY\\b",
+              "error": "Group the results by campaign."
+            },
+            {
+              "pattern": "\\bHAVING\\b",
+              "error": "Filter aggregate results in HAVING."
+            },
+            {
+              "pattern": "\\bROUND\\s*\\(",
+              "error": "Round conversion_rate to two decimal places."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Sort by conversion rate, then campaign name."
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Login Streaks of Three or More Consecutive Days",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "DISTINCT",
+            "ROW_NUMBER",
+            "DATE_SUB",
+            "GROUP BY",
+            "HAVING",
+            "Gaps and Islands"
+          ],
+          "intro": "A user can log in more than once on a day. Find every uninterrupted run of at least three DISTINCT calendar dates with a login, for each user. There may be multiple qualifying streaks for the same user.",
+          "tables": [
+            {
+              "name": "users",
+              "headers": [
+                "user_id",
+                "user_name"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Asha"
+                ],
+                [
+                  2,
+                  "Kiran"
+                ],
+                [
+                  3,
+                  "Meera"
+                ],
+                [
+                  4,
+                  "Rahul"
+                ],
+                [
+                  5,
+                  "Diya"
+                ],
+                [
+                  6,
+                  "Neel"
+                ]
+              ]
+            },
+            {
+              "name": "login_events",
+              "headers": [
+                "event_id",
+                "user_id",
+                "login_date"
+              ],
+              "rows": [
+                [
+                  1,
+                  1,
+                  "2026-11-01"
+                ],
+                [
+                  2,
+                  1,
+                  "2026-11-02"
+                ],
+                [
+                  3,
+                  1,
+                  "2026-11-02"
+                ],
+                [
+                  4,
+                  1,
+                  "2026-11-03"
+                ],
+                [
+                  5,
+                  1,
+                  "2026-11-05"
+                ],
+                [
+                  6,
+                  1,
+                  "2026-11-06"
+                ],
+                [
+                  7,
+                  2,
+                  "2026-11-01"
+                ],
+                [
+                  8,
+                  2,
+                  "2026-11-03"
+                ],
+                [
+                  9,
+                  2,
+                  "2026-11-04"
+                ],
+                [
+                  10,
+                  2,
+                  "2026-11-05"
+                ],
+                [
+                  11,
+                  3,
+                  "2026-11-10"
+                ],
+                [
+                  12,
+                  3,
+                  "2026-11-11"
+                ],
+                [
+                  13,
+                  4,
+                  "2026-11-07"
+                ],
+                [
+                  14,
+                  4,
+                  "2026-11-08"
+                ],
+                [
+                  15,
+                  4,
+                  "2026-11-09"
+                ],
+                [
+                  16,
+                  4,
+                  "2026-11-10"
+                ],
+                [
+                  17,
+                  5,
+                  "2026-11-02"
+                ],
+                [
+                  18,
+                  5,
+                  "2026-11-04"
+                ],
+                [
+                  19,
+                  5,
+                  "2026-11-06"
+                ],
+                [
+                  20,
+                  6,
+                  "2026-11-15"
+                ],
+                [
+                  21,
+                  6,
+                  "2026-11-16"
+                ],
+                [
+                  22,
+                  6,
+                  "2026-11-17"
+                ],
+                [
+                  23,
+                  6,
+                  "2026-11-17"
+                ],
+                [
+                  24,
+                  6,
+                  "2026-11-20"
+                ],
+                [
+                  25,
+                  6,
+                  "2026-11-21"
+                ],
+                [
+                  26,
+                  6,
+                  "2026-11-22"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use one MySQL 8.0 query with CTEs and ROW_NUMBER() to identify all user streaks with at least 3 consecutive calendar days of logins.",
+            "Count each login_date only once per user (even if multiple events occurred that day). Treat a missing calendar day as a streak break.",
+            "Display exactly user_name, streak_start, streak_end and streak_days. Dates are DATE values, and streak_days is the number of distinct days in the streak.",
+            "A user may appear more than once if they have multiple separate qualifying streaks; do not return shorter streaks.",
+            "Sort by streak_start ascending; if dates tie, sort by user_name ascending."
+          ],
+          "output": {
+            "headers": [
+              "user_name",
+              "streak_start",
+              "streak_end",
+              "streak_days"
+            ],
+            "rows": [
+              [
+                "Asha",
+                "2026-11-01",
+                "2026-11-03",
+                3
+              ],
+              [
+                "Kiran",
+                "2026-11-03",
+                "2026-11-05",
+                3
+              ],
+              [
+                "Rahul",
+                "2026-11-07",
+                "2026-11-10",
+                4
+              ],
+              [
+                "Neel",
+                "2026-11-15",
+                "2026-11-17",
+                3
+              ],
+              [
+                "Neel",
+                "2026-11-20",
+                "2026-11-22",
+                3
+              ]
+            ]
+          },
+          "hint": "First use DISTINCT to get one row per user/day. Assign ROW_NUMBER() by user ordered by login_date. On consecutive dates, DATE_SUB(login_date, INTERVAL row_number DAY) stays constant: that value can be your streak grouping key.",
+          "solution": "WITH daily_logins AS (\n    SELECT DISTINCT user_id, login_date\n    FROM login_events\n),\nnumbered AS (\n    SELECT user_id, login_date,\n           ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date) AS rn\n    FROM daily_logins\n),\nstreaks AS (\n    SELECT user_id,\n           MIN(login_date) AS streak_start,\n           MAX(login_date) AS streak_end,\n           COUNT(*) AS streak_days\n    FROM numbered\n    GROUP BY user_id, DATE_SUB(login_date, INTERVAL rn DAY)\n    HAVING COUNT(*) >= 3\n)\nSELECT u.user_name, s.streak_start, s.streak_end, s.streak_days\nFROM streaks s\nJOIN users u ON u.user_id = s.user_id\nORDER BY s.streak_start ASC, u.user_name ASC;",
+          "steps": [
+            "daily_logins removes repeated same-day events: Asha's extra Nov 2 login and Neel's extra Nov 17 login count only once.",
+            "numbered uses ROW_NUMBER() separately for each user, in ascending login_date order.",
+            "For consecutive dates, subtracting rn days from login_date produces the same shifted date (grouping key). A missing day changes that key, separating the runs.",
+            "For Asha, Nov 1–3 form a 3-day streak; Nov 5–6 form only a 2-day streak and are omitted.",
+            "For Kiran, Nov 3–5 form a 3-day streak; Nov 1 is alone. Rahul has Nov 7–10, a 4-day streak.",
+            "Meera has only two consecutive days, and Diya's dates are not consecutive, so neither qualifies.",
+            "Neel has two separate 3-day streaks: Nov 15–17 and Nov 20–22. Both must appear.",
+            "HAVING keeps groups with at least 3 days, JOIN adds user_name, and ORDER BY sorts by the start date."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bWITH\\b",
+              "error": "Use CTEs with WITH."
+            },
+            {
+              "pattern": "\\bDISTINCT\\b",
+              "error": "Remove repeated user/day events with DISTINCT."
+            },
+            {
+              "pattern": "\\bROW_NUMBER\\s*\\(\\s*\\)",
+              "error": "Use ROW_NUMBER() to number each user's login days."
+            },
+            {
+              "pattern": "\\bPARTITION\\s+BY\\b",
+              "error": "Partition the window by user_id."
+            },
+            {
+              "pattern": "\\bDATE_SUB\\s*\\(",
+              "error": "Use DATE_SUB to group consecutive days."
+            },
+            {
+              "pattern": "\\bGROUP\\s+BY\\b",
+              "error": "Group dates into streaks."
+            },
+            {
+              "pattern": "\\bHAVING\\b",
+              "error": "Keep only streak groups with at least three days."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
