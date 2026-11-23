@@ -4337,6 +4337,639 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-24",
+      "day": 8,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Duplicate Customer Email Audit",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "SELECT",
+            "LOWER",
+            "TRIM",
+            "GROUP BY",
+            "HAVING",
+            "COUNT",
+            "ORDER BY"
+          ],
+          "intro": "The customer database contains email addresses entered with inconsistent capitalization and extra spaces. Identify email addresses shared by two or more customer rows after normalizing them.",
+          "tables": [
+            {
+              "name": "customers",
+              "headers": [
+                "customer_id",
+                "customer_name",
+                "email"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Asha",
+                  " Asha@Example.com "
+                ],
+                [
+                  2,
+                  "Manu",
+                  "asha@example.com"
+                ],
+                [
+                  3,
+                  "Zara",
+                  "SHARED@MAIL.COM"
+                ],
+                [
+                  4,
+                  "Ravi",
+                  " shared@mail.com "
+                ],
+                [
+                  5,
+                  "Sara",
+                  "shared@MAIL.com"
+                ],
+                [
+                  6,
+                  "Isha",
+                  "isha@x.com"
+                ],
+                [
+                  7,
+                  "Paul",
+                  ""
+                ],
+                [
+                  8,
+                  "Dee",
+                  null
+                ],
+                [
+                  9,
+                  "Neha",
+                  " Boss@company.com"
+                ],
+                [
+                  10,
+                  "Bina",
+                  "boss@COMPANY.COM "
+                ],
+                [
+                  11,
+                  "Leo",
+                  "misc@mail.com"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Normalize each email with LOWER(TRIM(email)), so differences only in letter case or leading/trailing spaces count as the same address.",
+            "Exclude rows where email is NULL or becomes an empty string after trimming.",
+            "Return exactly normalized_email and duplicate_count, with one row for every normalized address appearing in at least two customer records.",
+            "Sort by duplicate_count descending; when counts tie, sort normalized_email alphabetically ascending.",
+            "Do not list individual customer records or include single-occurrence addresses."
+          ],
+          "output": {
+            "headers": [
+              "normalized_email",
+              "duplicate_count"
+            ],
+            "rows": [
+              [
+                "shared@mail.com",
+                3
+              ],
+              [
+                "asha@example.com",
+                2
+              ],
+              [
+                "boss@company.com",
+                2
+              ]
+            ]
+          },
+          "hint": "Filter NULL and empty email values first, group by LOWER(TRIM(email)), then use HAVING COUNT(*) >= 2. The same normalized expression can be selected with an alias.",
+          "solution": "SELECT LOWER(TRIM(email)) AS normalized_email,\n       COUNT(*) AS duplicate_count\nFROM customers\nWHERE email IS NOT NULL AND TRIM(email) <> ''\nGROUP BY LOWER(TRIM(email))\nHAVING COUNT(*) >= 2\nORDER BY duplicate_count DESC, normalized_email ASC;",
+          "steps": [
+            "TRIM removes spaces at the beginning and end; LOWER makes the address lowercase. For example, ' Asha@Example.com ' and 'asha@example.com' both become 'asha@example.com'.",
+            "WHERE removes Paul's empty email and Dee's NULL email. The other nine rows are kept.",
+            "GROUP BY forms groups for shared@mail.com (3 rows), asha@example.com (2), boss@company.com (2), plus two single-occurrence addresses.",
+            "HAVING COUNT(*) >= 2 removes isha@x.com and misc@mail.com.",
+            "ORDER BY puts shared@mail.com first with count 3; asha@example.com precedes boss@company.com because both have count 2."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bLOWER\\s*\\(",
+              "error": "Normalize case with LOWER()."
+            },
+            {
+              "pattern": "\\bTRIM\\s*\\(",
+              "error": "Remove surrounding spaces with TRIM()."
+            },
+            {
+              "pattern": "\\bGROUP\\s+BY\\b",
+              "error": "Group customers by the normalized email."
+            },
+            {
+              "pattern": "\\bHAVING\\b",
+              "error": "Use HAVING to keep duplicate groups."
+            },
+            {
+              "pattern": "\\bCOUNT\\s*\\(",
+              "error": "Count customers per email group."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Sort duplicate counts descending, then email ascending."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Return Requests Past the Allowed Window",
+          "difficulty": "Medium",
+          "topics": [
+            "INNER JOIN",
+            "Four-Table Join",
+            "DATEDIFF",
+            "WHERE",
+            "ORDER BY"
+          ],
+          "intro": "Each order has a purchase date, each order item identifies a product, and each product has its own allowed return window (in calendar days). Find requests still marked Requested that were submitted too late.",
+          "tables": [
+            {
+              "name": "orders",
+              "headers": [
+                "order_id",
+                "purchase_date"
+              ],
+              "rows": [
+                [
+                  1001,
+                  "2026-10-01"
+                ],
+                [
+                  1002,
+                  "2026-10-12"
+                ],
+                [
+                  1003,
+                  "2026-11-10"
+                ],
+                [
+                  1004,
+                  "2026-11-01"
+                ]
+              ]
+            },
+            {
+              "name": "products",
+              "headers": [
+                "product_id",
+                "product_name",
+                "return_window_days"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Earbuds",
+                  14
+                ],
+                [
+                  2,
+                  "Office Chair",
+                  30
+                ],
+                [
+                  3,
+                  "USB Cable",
+                  7
+                ]
+              ]
+            },
+            {
+              "name": "order_items",
+              "headers": [
+                "item_id",
+                "order_id",
+                "product_id"
+              ],
+              "rows": [
+                [
+                  11,
+                  1001,
+                  1
+                ],
+                [
+                  12,
+                  1001,
+                  2
+                ],
+                [
+                  13,
+                  1002,
+                  3
+                ],
+                [
+                  14,
+                  1003,
+                  1
+                ],
+                [
+                  15,
+                  1004,
+                  3
+                ],
+                [
+                  16,
+                  1004,
+                  2
+                ]
+              ]
+            },
+            {
+              "name": "return_requests",
+              "headers": [
+                "return_id",
+                "item_id",
+                "request_date",
+                "status"
+              ],
+              "rows": [
+                [
+                  501,
+                  11,
+                  "2026-10-20",
+                  "Requested"
+                ],
+                [
+                  502,
+                  12,
+                  "2026-10-31",
+                  "Requested"
+                ],
+                [
+                  503,
+                  13,
+                  "2026-10-23",
+                  "Requested"
+                ],
+                [
+                  504,
+                  14,
+                  "2026-11-16",
+                  "Requested"
+                ],
+                [
+                  505,
+                  15,
+                  "2026-11-12",
+                  "Approved"
+                ],
+                [
+                  506,
+                  16,
+                  "2026-11-22",
+                  "Requested"
+                ],
+                [
+                  507,
+                  13,
+                  "2026-10-19",
+                  "Requested"
+                ],
+                [
+                  508,
+                  11,
+                  "2026-10-30",
+                  "Rejected"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use JOINs to connect return_requests to order_items (by item_id), orders (by order_id), and products (by product_id).",
+            "Include only rows where return_requests.status = 'Requested' and DATEDIFF(request_date, purchase_date) is strictly GREATER than return_window_days.",
+            "A request submitted on the final allowed day is on time and must be excluded. Approved or Rejected requests must also be excluded, even if they were late.",
+            "Display exactly return_id, product_name, days_after_purchase (DATEDIFF result), and return_window_days.",
+            "Sort days_after_purchase descending, breaking any ties by return_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "return_id",
+              "product_name",
+              "days_after_purchase",
+              "return_window_days"
+            ],
+            "rows": [
+              [
+                501,
+                "Earbuds",
+                19,
+                14
+              ],
+              [
+                503,
+                "USB Cable",
+                11,
+                7
+              ]
+            ]
+          },
+          "hint": "Follow the foreign keys from request → item → order and item → product. DATEDIFF returns integer calendar-day differences; filter with > rather than >=.",
+          "solution": "SELECT r.return_id, p.product_name,\n       DATEDIFF(r.request_date, o.purchase_date) AS days_after_purchase,\n       p.return_window_days\nFROM return_requests r\nJOIN order_items oi ON oi.item_id = r.item_id\nJOIN orders o ON o.order_id = oi.order_id\nJOIN products p ON p.product_id = oi.product_id\nWHERE r.status = 'Requested'\n  AND DATEDIFF(r.request_date, o.purchase_date) > p.return_window_days\nORDER BY days_after_purchase DESC, r.return_id ASC;",
+          "steps": [
+            "JOIN maps each return to its purchased order item, then gets the order purchase date and product's return window.",
+            "For request 501: October 1 to October 20 is 19 days, exceeding the Earbuds window of 14, so include it.",
+            "For request 502: October 1 to October 31 is exactly 30 days, equal to the Office Chair window, so exclude it.",
+            "For request 503: October 12 to October 23 is 11 days, exceeding the USB Cable window of 7, so include it.",
+            "Requests 504, 506 and 507 are within their windows; request 505 is Approved and 508 is Rejected, so none is returned.",
+            "Order by days_after_purchase descending: request 501 (19 days), then request 503 (11 days)."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bFROM\\s+return_requests\\b",
+              "error": "Begin with return_requests."
+            },
+            {
+              "pattern": "\\bJOIN\\s+order_items\\b",
+              "error": "Join order_items to obtain the linked purchase."
+            },
+            {
+              "pattern": "\\bJOIN\\s+orders\\b",
+              "error": "Join orders to get purchase_date."
+            },
+            {
+              "pattern": "\\bJOIN\\s+products\\b",
+              "error": "Join products to get return_window_days."
+            },
+            {
+              "pattern": "\\bDATEDIFF\\s*\\(",
+              "error": "Calculate days after purchase with DATEDIFF()."
+            },
+            {
+              "pattern": "\\bRequested\\b",
+              "error": "Filter to requests whose status is Requested."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Order the results by late-request age descending."
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Detect Overlapping Confirmed Room Bookings",
+          "difficulty": "Medium",
+          "topics": [
+            "Self JOIN",
+            "Date Range Overlap",
+            "GREATEST",
+            "LEAST",
+            "Avoiding Duplicate Pairs"
+          ],
+          "intro": "A hotel stores bookings using check-in (inclusive) and check-out (exclusive) dates. On the same room, two Confirmed bookings conflict only when at least one night overlaps. Find all conflicting booking pairs without listing the same pair twice.",
+          "tables": [
+            {
+              "name": "rooms",
+              "headers": [
+                "room_id",
+                "room_name"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Cedar 101"
+                ],
+                [
+                  2,
+                  "Maple 202"
+                ],
+                [
+                  3,
+                  "Oak 303"
+                ]
+              ]
+            },
+            {
+              "name": "bookings",
+              "headers": [
+                "booking_id",
+                "room_id",
+                "guest_name",
+                "check_in",
+                "check_out",
+                "status"
+              ],
+              "rows": [
+                [
+                  101,
+                  1,
+                  "Asha",
+                  "2026-12-01",
+                  "2026-12-05",
+                  "Confirmed"
+                ],
+                [
+                  102,
+                  1,
+                  "Ravi",
+                  "2026-12-04",
+                  "2026-12-07",
+                  "Confirmed"
+                ],
+                [
+                  103,
+                  1,
+                  "Maya",
+                  "2026-12-07",
+                  "2026-12-09",
+                  "Confirmed"
+                ],
+                [
+                  104,
+                  1,
+                  "Neha",
+                  "2026-12-03",
+                  "2026-12-06",
+                  "Cancelled"
+                ],
+                [
+                  105,
+                  2,
+                  "Tara",
+                  "2026-12-10",
+                  "2026-12-15",
+                  "Confirmed"
+                ],
+                [
+                  106,
+                  2,
+                  "Isha",
+                  "2026-12-12",
+                  "2026-12-14",
+                  "Confirmed"
+                ],
+                [
+                  107,
+                  2,
+                  "Omar",
+                  "2026-12-14",
+                  "2026-12-17",
+                  "Confirmed"
+                ],
+                [
+                  108,
+                  2,
+                  "Vik",
+                  "2026-12-11",
+                  "2026-12-13",
+                  "Pending"
+                ],
+                [
+                  109,
+                  3,
+                  "Lina",
+                  "2026-12-01",
+                  "2026-12-04",
+                  "Confirmed"
+                ],
+                [
+                  110,
+                  3,
+                  "Dev",
+                  "2026-12-02",
+                  "2026-12-03",
+                  "Confirmed"
+                ],
+                [
+                  111,
+                  1,
+                  "Zara",
+                  "2026-12-02",
+                  "2026-12-04",
+                  "Confirmed"
+                ],
+                [
+                  112,
+                  3,
+                  "Anil",
+                  "2026-12-03",
+                  "2026-12-05",
+                  "Confirmed"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a self JOIN on bookings, plus a JOIN on rooms, to find two different Confirmed bookings for the same room whose night ranges overlap.",
+            "Treat dates as half-open intervals [check_in, check_out): checking out on the day another guest checks in is NOT a conflict.",
+            "Avoid reversed duplicate pairs and self-matches by requiring first booking_id < second booking_id.",
+            "Display exactly room_name, booking_id_1, booking_id_2, overlap_start (later check_in using GREATEST), and overlap_end (earlier check_out using LEAST). overlap_end is exclusive.",
+            "Exclude Cancelled and Pending bookings. Sort by room_name ASC, then booking_id_1 ASC, then booking_id_2 ASC."
+          ],
+          "output": {
+            "headers": [
+              "room_name",
+              "booking_id_1",
+              "booking_id_2",
+              "overlap_start",
+              "overlap_end"
+            ],
+            "rows": [
+              [
+                "Cedar 101",
+                101,
+                102,
+                "2026-12-04",
+                "2026-12-05"
+              ],
+              [
+                "Cedar 101",
+                101,
+                111,
+                "2026-12-02",
+                "2026-12-04"
+              ],
+              [
+                "Maple 202",
+                105,
+                106,
+                "2026-12-12",
+                "2026-12-14"
+              ],
+              [
+                "Maple 202",
+                105,
+                107,
+                "2026-12-14",
+                "2026-12-15"
+              ],
+              [
+                "Oak 303",
+                109,
+                110,
+                "2026-12-02",
+                "2026-12-03"
+              ],
+              [
+                "Oak 303",
+                109,
+                112,
+                "2026-12-03",
+                "2026-12-04"
+              ]
+            ]
+          },
+          "note": "The overlap_end column is a check-out boundary, not a night included in the overlap.",
+          "hint": "Self-join bookings a and b using the same room_id and a.booking_id < b.booking_id. Overlap requires a.check_in < b.check_out AND b.check_in < a.check_out. Only then calculate GREATEST/LEAST.",
+          "solution": "SELECT r.room_name,\n       a.booking_id AS booking_id_1,\n       b.booking_id AS booking_id_2,\n       GREATEST(a.check_in, b.check_in) AS overlap_start,\n       LEAST(a.check_out, b.check_out) AS overlap_end\nFROM bookings a\nJOIN bookings b\n  ON a.room_id = b.room_id\n AND a.booking_id < b.booking_id\n AND a.check_in < b.check_out\n AND b.check_in < a.check_out\nJOIN rooms r ON r.room_id = a.room_id\nWHERE a.status = 'Confirmed' AND b.status = 'Confirmed'\nORDER BY r.room_name ASC, booking_id_1 ASC, booking_id_2 ASC;",
+          "steps": [
+            "The self JOIN compares two booking rows at a time. a.room_id = b.room_id prevents comparing different rooms.",
+            "a.booking_id < b.booking_id avoids matching a booking to itself or returning both (101,102) and (102,101).",
+            "The two strict < date comparisons detect only actual shared nights. For example, booking 102 checks out December 7 and 103 checks in December 7, so they do not overlap.",
+            "WHERE removes any pair containing Cancelled booking 104 or Pending booking 108.",
+            "For Cedar 101, bookings 101 & 102 overlap December 4 to December 5 (end exclusive); 101 & 111 overlap December 2 to December 4. Bookings 102 & 111 merely touch on December 4 and do not overlap.",
+            "For Maple 202, the conflicts are 105 & 106 (December 12–14) and 105 & 107 (December 14–15); 106 & 107 touch but do not overlap.",
+            "For Oak 303, 109 & 110 and 109 & 112 overlap, but 110 & 112 merely touch on December 3.",
+            "GREATEST picks the overlap starting date and LEAST picks the ending check-out boundary; sorting gives exactly six ordered pairs."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bJOIN\\s+bookings\\b",
+              "error": "Self-join bookings so two rows can be compared."
+            },
+            {
+              "pattern": "\\bJOIN\\s+rooms\\b",
+              "error": "Join rooms to display the room name."
+            },
+            {
+              "pattern": "\\bConfirmed\\b",
+              "error": "Only compare Confirmed bookings."
+            },
+            {
+              "pattern": "\\bGREATEST\\s*\\(",
+              "error": "Use GREATEST() to find overlap_start."
+            },
+            {
+              "pattern": "\\bLEAST\\s*\\(",
+              "error": "Use LEAST() to find overlap_end."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Sort by room name and the two booking IDs."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
