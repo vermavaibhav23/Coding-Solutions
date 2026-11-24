@@ -4970,6 +4970,523 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-25",
+      "day": 9,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Customers Who Purchased in Both Months",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "SELECT",
+            "EXISTS",
+            "Correlated Subqueries",
+            "Date Ranges",
+            "ORDER BY"
+          ],
+          "intro": "The customers and orders tables store customer details and purchase history. Find repeat customers who made at least one completed purchase in September 2026 and at least one completed purchase in October 2026.",
+          "tables": [
+            {
+              "name": "customers",
+              "headers": [
+                "customer_id",
+                "customer_name"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Asha"
+                ],
+                [
+                  2,
+                  "Bala"
+                ],
+                [
+                  3,
+                  "Chitra"
+                ],
+                [
+                  4,
+                  "Dev"
+                ],
+                [
+                  5,
+                  "Esha"
+                ],
+                [
+                  6,
+                  "Farhan"
+                ]
+              ]
+            },
+            {
+              "name": "orders",
+              "headers": [
+                "order_id",
+                "customer_id",
+                "order_date",
+                "status"
+              ],
+              "rows": [
+                [
+                  101,
+                  1,
+                  "2026-09-03",
+                  "Completed"
+                ],
+                [
+                  102,
+                  1,
+                  "2026-09-25",
+                  "Completed"
+                ],
+                [
+                  103,
+                  1,
+                  "2026-10-01",
+                  "Completed"
+                ],
+                [
+                  104,
+                  2,
+                  "2026-09-30",
+                  "Completed"
+                ],
+                [
+                  105,
+                  2,
+                  "2026-10-04",
+                  "Cancelled"
+                ],
+                [
+                  106,
+                  3,
+                  "2026-10-08",
+                  "Completed"
+                ],
+                [
+                  107,
+                  4,
+                  "2026-09-01",
+                  "Completed"
+                ],
+                [
+                  108,
+                  4,
+                  "2026-10-31",
+                  "Completed"
+                ],
+                [
+                  109,
+                  4,
+                  "2026-11-01",
+                  "Completed"
+                ],
+                [
+                  110,
+                  5,
+                  "2026-08-31",
+                  "Completed"
+                ],
+                [
+                  111,
+                  5,
+                  "2026-10-12",
+                  "Completed"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Return customers with at least one Completed order in each of September 2026 and October 2026.",
+            "Ignore orders with any other status. Orders outside these two calendar months do not qualify.",
+            "Display customer_id and customer_name exactly once per qualifying customer.",
+            "Sort by customer_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "customer_id",
+              "customer_name"
+            ],
+            "rows": [
+              [
+                1,
+                "Asha"
+              ],
+              [
+                4,
+                "Dev"
+              ]
+            ]
+          },
+          "hint": "Check the existence of a qualifying order separately for each month. You can also group completed orders and test whether both months are represented.",
+          "solution": "SELECT c.customer_id, c.customer_name\nFROM customers c\nWHERE EXISTS (\n    SELECT 1\n    FROM orders o\n    WHERE o.customer_id = c.customer_id\n      AND o.status = 'Completed'\n      AND o.order_date >= '2026-09-01'\n      AND o.order_date < '2026-10-01'\n)\nAND EXISTS (\n    SELECT 1\n    FROM orders o\n    WHERE o.customer_id = c.customer_id\n      AND o.status = 'Completed'\n      AND o.order_date >= '2026-10-01'\n      AND o.order_date < '2026-11-01'\n)\nORDER BY c.customer_id ASC;",
+          "steps": [
+            "Start with one row per customer, so the outer query cannot duplicate a customer.",
+            "The first EXISTS checks September orders only. Asha, Bala and Dev have at least one completed September order.",
+            "The second EXISTS checks October orders only. Asha, Chitra, Dev and Esha qualify for October; Bala's October order was cancelled.",
+            "Both conditions must be true, leaving Asha and Dev. Asha's two September purchases still produce one customer row.",
+            "ORDER BY customer_id ASC places customer 1 before customer 4."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bSELECT\\b",
+              "error": "Write a SELECT query."
+            },
+            {
+              "pattern": "\\bcustomers\\b",
+              "error": "Use customer information."
+            },
+            {
+              "pattern": "\\borders\\b",
+              "error": "Check purchase history."
+            },
+            {
+              "pattern": "\\bCompleted\\b",
+              "error": "Restrict purchases to Completed orders."
+            },
+            {
+              "pattern": "\\bORDER\\s+BY\\b",
+              "error": "Sort by customer_id."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Issue Missing Course Certificates",
+          "difficulty": "Medium",
+          "topics": [
+            "INSERT INTO SELECT",
+            "NOT EXISTS",
+            "Anti-Join",
+            "Composite Key",
+            "DML"
+          ],
+          "intro": "A training platform stores one row per enrollment and issues a certificate only after a course is completed. The certificates table already contains some issued certificates. Insert the missing ones without creating duplicates. Both tables have a unique composite key on (student_id, course_id); completed_on is a DATE column and issued_on is a DATE column.",
+          "tables": [
+            {
+              "name": "enrollments",
+              "headers": [
+                "student_id",
+                "course_id",
+                "status",
+                "completed_on"
+              ],
+              "rows": [
+                [
+                  1,
+                  101,
+                  "Completed",
+                  "2026-11-05"
+                ],
+                [
+                  1,
+                  102,
+                  "In Progress",
+                  null
+                ],
+                [
+                  2,
+                  101,
+                  "Completed",
+                  "2026-11-08"
+                ],
+                [
+                  2,
+                  103,
+                  "Completed",
+                  "2026-11-10"
+                ],
+                [
+                  3,
+                  102,
+                  "Completed",
+                  "2026-11-12"
+                ],
+                [
+                  4,
+                  103,
+                  "Withdrawn",
+                  null
+                ],
+                [
+                  5,
+                  101,
+                  "Completed",
+                  "2026-11-14"
+                ]
+              ]
+            },
+            {
+              "name": "certificates",
+              "headers": [
+                "student_id",
+                "course_id",
+                "issued_on"
+              ],
+              "rows": [
+                [
+                  1,
+                  101,
+                  "2026-11-06"
+                ],
+                [
+                  2,
+                  103,
+                  "2026-11-11"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write exactly one INSERT statement that selects data from enrollments.",
+            "Issue certificates only for enrollments whose status is Completed.",
+            "Do not insert a certificate if the same student_id and course_id pair already exists in certificates.",
+            "For each newly issued certificate, use the enrollment's completed_on value as issued_on. Preserve all existing certificates, including their original issue dates.",
+            "The expected output shows the entire certificates table after insertion, ordered by student_id and then course_id for illustration. You do not need to write a separate SELECT."
+          ],
+          "output": {
+            "headers": [
+              "student_id",
+              "course_id",
+              "issued_on"
+            ],
+            "rows": [
+              [
+                1,
+                101,
+                "2026-11-06"
+              ],
+              [
+                2,
+                101,
+                "2026-11-08"
+              ],
+              [
+                2,
+                103,
+                "2026-11-11"
+              ],
+              [
+                3,
+                102,
+                "2026-11-12"
+              ],
+              [
+                5,
+                101,
+                "2026-11-14"
+              ]
+            ]
+          },
+          "note": "NULL in the sample represents a SQL NULL value. The input guarantees completed enrollments have non-NULL completion dates.",
+          "hint": "Use INSERT INTO ... SELECT. Compare both student_id and course_id when checking for an existing certificate; checking only one column would incorrectly skip some enrollments.",
+          "solution": "INSERT INTO certificates (student_id, course_id, issued_on)\nSELECT e.student_id, e.course_id, e.completed_on\nFROM enrollments e\nWHERE e.status = 'Completed'\n  AND NOT EXISTS (\n      SELECT 1\n      FROM certificates c\n      WHERE c.student_id = e.student_id\n        AND c.course_id = e.course_id\n  );",
+          "steps": [
+            "INSERT INTO names the three target columns in their corresponding order.",
+            "The SELECT reads only Completed enrollments: (1,101), (2,101), (2,103), (3,102), and (5,101).",
+            "For each enrollment, NOT EXISTS checks the certificate table using both key columns. The pairs (1,101) and (2,103) already exist, so they are excluded.",
+            "The three missing pairs are inserted: (2,101), (3,102), and (5,101), each using completed_on as issued_on.",
+            "The original two certificate rows remain unchanged. There are now five rows."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bINSERT\\s+INTO\\s+certificates\\b",
+              "error": "Insert into certificates."
+            },
+            {
+              "pattern": "\\bSELECT\\b",
+              "error": "Select the values from existing rows."
+            },
+            {
+              "pattern": "\\benrollments\\b",
+              "error": "Use the enrollments table."
+            },
+            {
+              "pattern": "\\bcompleted_on\\b",
+              "error": "Use the enrollment completion date."
+            },
+            {
+              "pattern": "\\bCompleted\\b",
+              "error": "Only issue certificates for completed enrollments."
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Rolling Average of the Last Three Sensor Readings",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "AVG",
+            "COUNT",
+            "Window Functions",
+            "ROWS Frame",
+            "PARTITION BY"
+          ],
+          "intro": "The sensor_readings table records temperatures from multiple sensors. Each reading has a unique reading_id, a sensor_id, a reading timestamp (recorded_at), and a non-NULL numeric temperature. Calculate a rolling average over the current reading and the previous two readings of the same sensor.",
+          "tables": [
+            {
+              "name": "sensor_readings",
+              "headers": [
+                "reading_id",
+                "sensor_id",
+                "recorded_at",
+                "temperature"
+              ],
+              "rows": [
+                [
+                  1,
+                  "A",
+                  "2026-11-24 09:00:00",
+                  20
+                ],
+                [
+                  2,
+                  "B",
+                  "2026-11-24 09:00:00",
+                  30
+                ],
+                [
+                  3,
+                  "A",
+                  "2026-11-24 10:00:00",
+                  22
+                ],
+                [
+                  4,
+                  "A",
+                  "2026-11-24 10:00:00",
+                  24
+                ],
+                [
+                  5,
+                  "B",
+                  "2026-11-24 10:30:00",
+                  33
+                ],
+                [
+                  6,
+                  "A",
+                  "2026-11-24 12:00:00",
+                  26
+                ],
+                [
+                  7,
+                  "B",
+                  "2026-11-24 14:00:00",
+                  36
+                ],
+                [
+                  8,
+                  "B",
+                  "2026-11-24 15:00:00",
+                  39
+                ],
+                [
+                  9,
+                  "A",
+                  "2026-11-24 16:00:00",
+                  31
+                ],
+                [
+                  10,
+                  "C",
+                  "2026-11-24 09:30:00",
+                  18
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "For each sensor separately, order readings by recorded_at ascending and use reading_id ascending to break timestamp ties.",
+            "Compute the average temperature of the current reading and the immediately preceding two readings, based on rows rather than a fixed time interval.",
+            "Exclude readings for which fewer than three readings are available in that window.",
+            "Return sensor_id, reading_id, recorded_at, and avg_last_three rounded to two decimal places.",
+            "Sort by sensor_id ascending, recorded_at ascending, then reading_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "sensor_id",
+              "reading_id",
+              "recorded_at",
+              "avg_last_three"
+            ],
+            "rows": [
+              [
+                "A",
+                4,
+                "2026-11-24 10:00:00",
+                22
+              ],
+              [
+                "A",
+                6,
+                "2026-11-24 12:00:00",
+                24
+              ],
+              [
+                "A",
+                9,
+                "2026-11-24 16:00:00",
+                27
+              ],
+              [
+                "B",
+                7,
+                "2026-11-24 14:00:00",
+                33
+              ],
+              [
+                "B",
+                8,
+                "2026-11-24 15:00:00",
+                36
+              ]
+            ]
+          },
+          "note": "Numeric results such as 22 and 22.00 are equivalent; the query should explicitly round to two decimal places.",
+          "hint": "Use a ROWS BETWEEN 2 PRECEDING AND CURRENT ROW window frame for AVG and COUNT, then filter incomplete frames in an outer query.",
+          "solution": "WITH rolling AS (\n    SELECT sensor_id, reading_id, recorded_at,\n           AVG(temperature) OVER (\n               PARTITION BY sensor_id\n               ORDER BY recorded_at, reading_id\n               ROWS BETWEEN 2 PRECEDING AND CURRENT ROW\n           ) AS rolling_avg,\n           COUNT(*) OVER (\n               PARTITION BY sensor_id\n               ORDER BY recorded_at, reading_id\n               ROWS BETWEEN 2 PRECEDING AND CURRENT ROW\n           ) AS window_count\n    FROM sensor_readings\n)\nSELECT sensor_id, reading_id, recorded_at,\n       ROUND(rolling_avg, 2) AS avg_last_three\nFROM rolling\nWHERE window_count = 3\nORDER BY sensor_id, recorded_at, reading_id;",
+          "steps": [
+            "PARTITION BY sensor_id keeps each sensor's readings independent. Within each partition, recorded_at and reading_id determine the chronological order even when timestamps match.",
+            "Sensor A's ordered temperatures are 20, 22, 24, 26 and 31. Sensor B's are 30, 33, 36 and 39. Sensor C has only one reading.",
+            "The ROWS frame contains at most three physical rows: the current row and two earlier rows. AVG computes their mean and COUNT tells us whether the frame is complete.",
+            "For A, complete frames give (20+22+24)/3 = 22, (22+24+26)/3 = 24, and (24+26+31)/3 = 27. For B, they give (30+33+36)/3 = 33 and (33+36+39)/3 = 36.",
+            "The outer WHERE keeps only rows with a frame count of three. This removes the first two readings of A and B and the sole reading of C. ROUND and ORDER BY format and sort the remaining five rows."
+          ],
+          "initial": "",
+          "solvedInitially": false,
+          "checks": [
+            {
+              "pattern": "\\bAVG\\s*\\(",
+              "error": "Calculate an average temperature."
+            },
+            {
+              "pattern": "\\bPARTITION\\s+BY\\b",
+              "error": "Keep each sensor's readings separate."
+            },
+            {
+              "pattern": "\\bROWS\\s+BETWEEN\\s+2\\s+PRECEDING\\s+AND\\s+CURRENT\\s+ROW\\b",
+              "error": "Use a three-row window ending at the current reading."
+            },
+            {
+              "pattern": "\\bROUND\\s*\\(",
+              "error": "Round the result to two decimal places."
+            },
+            {
+              "pattern": "\\bavg_last_three\\b",
+              "error": "Use the requested output alias."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
