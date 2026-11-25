@@ -5487,6 +5487,511 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-26",
+      "day": 10,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Employees Earning More Than Their Manager",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "Self JOIN",
+            "WHERE",
+            "Computed Columns",
+            "ORDER BY"
+          ],
+          "intro": "The employees table stores one row per employee. employee_id is the primary key; manager_id references the employee_id of the employee's immediate manager, or is NULL for employees without a manager. Salaries are non-NULL monthly amounts. Find employees whose salary exceeds their immediate manager's salary.",
+          "tables": [
+            {
+              "name": "employees",
+              "headers": [
+                "employee_id",
+                "employee_name",
+                "manager_id",
+                "salary"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Meera",
+                  null,
+                  90000
+                ],
+                [
+                  2,
+                  "Arun",
+                  1,
+                  95000
+                ],
+                [
+                  3,
+                  "Diya",
+                  1,
+                  85000
+                ],
+                [
+                  4,
+                  "Kabir",
+                  2,
+                  100000
+                ],
+                [
+                  5,
+                  "Riya",
+                  2,
+                  95000
+                ],
+                [
+                  6,
+                  "Neha",
+                  3,
+                  92000
+                ],
+                [
+                  7,
+                  "Vikram",
+                  3,
+                  90000
+                ],
+                [
+                  8,
+                  "Ishaan",
+                  null,
+                  110000
+                ],
+                [
+                  9,
+                  "Anya",
+                  1,
+                  95000
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a self JOIN of employees to match each employee with their immediate manager using manager_id and employee_id.",
+            "Include only employees earning strictly more than their immediate manager. Exclude employees without a manager and those earning exactly the same amount as their manager.",
+            "Display exactly employee_name, manager_name, employee_salary, manager_salary, and salary_difference (employee_salary minus manager_salary).",
+            "Sort by salary_difference descending, then employee_name ascending. Employee names in this sample are unique."
+          ],
+          "output": {
+            "headers": [
+              "employee_name",
+              "manager_name",
+              "employee_salary",
+              "manager_salary",
+              "salary_difference"
+            ],
+            "rows": [
+              [
+                "Neha",
+                "Diya",
+                92000,
+                85000,
+                7000
+              ],
+              [
+                "Anya",
+                "Meera",
+                95000,
+                90000,
+                5000
+              ],
+              [
+                "Arun",
+                "Meera",
+                95000,
+                90000,
+                5000
+              ],
+              [
+                "Kabir",
+                "Arun",
+                100000,
+                95000,
+                5000
+              ],
+              [
+                "Vikram",
+                "Diya",
+                90000,
+                85000,
+                5000
+              ]
+            ]
+          },
+          "hint": "Give the same table two different aliases, one for the employee and one for their manager. Compare their salaries after joining.",
+          "solution": "SELECT e.employee_name, m.employee_name AS manager_name,\n       e.salary AS employee_salary, m.salary AS manager_salary,\n       e.salary - m.salary AS salary_difference\nFROM employees e\nJOIN employees m ON e.manager_id = m.employee_id\nWHERE e.salary > m.salary\nORDER BY salary_difference DESC, e.employee_name ASC;",
+          "steps": [
+            "Read employees twice using aliases e (employee) and m (manager).",
+            "Match e.manager_id to m.employee_id. For example, Neha has manager_id 3, so her manager is Diya. Employees Meera and Ishaan have no manager, so the INNER JOIN excludes them.",
+            "Compare the two salaries. Diya earns less than Meera; Riya earns exactly as much as Arun. Both are excluded.",
+            "The remaining employees are Arun, Kabir, Neha, Vikram and Anya. Their salary differences are 5000, 5000, 7000, 5000 and 5000 respectively.",
+            "Sort by difference descending, putting Neha first, then alphabetically among the four employees tied at 5000."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        },
+        {
+          "id": 2,
+          "title": "Project Budget Audit Across Two Cost Tables",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "GROUP BY",
+            "SUM",
+            "LEFT JOIN",
+            "COALESCE",
+            "Avoiding Join Fan-Out"
+          ],
+          "intro": "A project has a fixed budget and can incur labor costs in work_logs and purchase costs in expenses. Each project can have zero or many rows in either cost table. All costs and budgets are non-NULL, non-negative numeric values. Find projects that have exceeded their budget without counting costs multiple times.",
+          "tables": [
+            {
+              "name": "projects",
+              "headers": [
+                "project_id",
+                "project_name",
+                "budget"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Atlas",
+                  1000
+                ],
+                [
+                  2,
+                  "Beacon",
+                  800
+                ],
+                [
+                  3,
+                  "Cedar",
+                  500
+                ],
+                [
+                  4,
+                  "Delta",
+                  600
+                ],
+                [
+                  5,
+                  "Echo",
+                  400
+                ],
+                [
+                  6,
+                  "Flux",
+                  300
+                ]
+              ]
+            },
+            {
+              "name": "work_logs",
+              "headers": [
+                "log_id",
+                "project_id",
+                "labor_cost"
+              ],
+              "rows": [
+                [
+                  11,
+                  1,
+                  400
+                ],
+                [
+                  12,
+                  1,
+                  300
+                ],
+                [
+                  13,
+                  2,
+                  300
+                ],
+                [
+                  14,
+                  2,
+                  200
+                ],
+                [
+                  15,
+                  3,
+                  550
+                ],
+                [
+                  16,
+                  6,
+                  100
+                ],
+                [
+                  17,
+                  6,
+                  100
+                ]
+              ]
+            },
+            {
+              "name": "expenses",
+              "headers": [
+                "expense_id",
+                "project_id",
+                "amount"
+              ],
+              "rows": [
+                [
+                  21,
+                  1,
+                  250
+                ],
+                [
+                  22,
+                  1,
+                  200
+                ],
+                [
+                  23,
+                  2,
+                  100
+                ],
+                [
+                  24,
+                  2,
+                  200
+                ],
+                [
+                  25,
+                  4,
+                  400
+                ],
+                [
+                  26,
+                  4,
+                  350
+                ],
+                [
+                  27,
+                  6,
+                  50
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a single SELECT query with CTEs (WITH) to compute the total labor cost and total expense separately for each project before joining those totals to projects.",
+            "Treat missing labor or expense rows as a cost of 0. Projects with no records in one or both cost tables must still be considered.",
+            "Return only projects where the combined cost is strictly greater than the budget; projects exactly at budget must not appear.",
+            "Display exactly project_name, budget, labor_total, expense_total, total_cost and over_budget (total_cost minus budget).",
+            "Sort by over_budget descending, then project_name ascending."
+          ],
+          "output": {
+            "headers": [
+              "project_name",
+              "budget",
+              "labor_total",
+              "expense_total",
+              "total_cost",
+              "over_budget"
+            ],
+            "rows": [
+              [
+                "Atlas",
+                1000,
+                700,
+                450,
+                1150,
+                150
+              ],
+              [
+                "Delta",
+                600,
+                0,
+                750,
+                750,
+                150
+              ],
+              [
+                "Cedar",
+                500,
+                550,
+                0,
+                550,
+                50
+              ]
+            ]
+          },
+          "hint": "Aggregate the two child tables independently. Joining raw work logs to raw expenses can multiply rows. LEFT JOIN the aggregated results and use COALESCE for missing totals.",
+          "solution": "WITH labor AS (\n    SELECT project_id, SUM(labor_cost) AS labor_total\n    FROM work_logs\n    GROUP BY project_id\n), purchases AS (\n    SELECT project_id, SUM(amount) AS expense_total\n    FROM expenses\n    GROUP BY project_id\n), costs AS (\n    SELECT p.project_name, p.budget,\n           COALESCE(l.labor_total, 0) AS labor_total,\n           COALESCE(e.expense_total, 0) AS expense_total\n    FROM projects p\n    LEFT JOIN labor l ON l.project_id = p.project_id\n    LEFT JOIN purchases e ON e.project_id = p.project_id\n)\nSELECT project_name, budget, labor_total, expense_total,\n       labor_total + expense_total AS total_cost,\n       labor_total + expense_total - budget AS over_budget\nFROM costs\nWHERE labor_total + expense_total > budget\nORDER BY over_budget DESC, project_name ASC;",
+          "steps": [
+            "Atlas has two labor records and two expense records. A direct join of both child tables would produce four combinations and double-count costs.",
+            "The labor CTE produces one row per project with labor records: Atlas 700, Beacon 500, Cedar 550 and Flux 200.",
+            "The purchases CTE produces one row per project with expenses: Atlas 450, Beacon 300, Delta 750 and Flux 50.",
+            "LEFT JOIN the two totals to all six projects. COALESCE converts missing totals to zero, so Delta has zero labor cost, Cedar has zero expense cost, and Echo has zero for both.",
+            "Add the totals: Atlas 1150, Beacon 800, Cedar 550, Delta 750, Echo 0 and Flux 250. Compare each to its own budget. Beacon is exactly at budget, so it is excluded along with Echo and Flux.",
+            "Atlas and Delta exceed their budget by 150 each, and Cedar by 50. Sort the tied projects alphabetically before Cedar."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        },
+        {
+          "id": 3,
+          "title": "Median Delivery Time per Carrier",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "ROW_NUMBER",
+            "COUNT OVER",
+            "AVG",
+            "FLOOR",
+            "Window Functions",
+            "Median"
+          ],
+          "intro": "The shipments table records the carrier, shipment status and delivery_days. shipment_id is unique. Delivered shipments always have a non-NULL integer delivery_days. Calculate each carrier's median delivery duration using only Delivered shipments. A median is the middle value of a sorted list with odd length, or the average of the two middle values when the list has even length.",
+          "tables": [
+            {
+              "name": "shipments",
+              "headers": [
+                "shipment_id",
+                "carrier",
+                "status",
+                "delivery_days"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Swift",
+                  "Delivered",
+                  7
+                ],
+                [
+                  2,
+                  "Swift",
+                  "Delivered",
+                  2
+                ],
+                [
+                  3,
+                  "Swift",
+                  "Delivered",
+                  4
+                ],
+                [
+                  4,
+                  "Swift",
+                  "Cancelled",
+                  null
+                ],
+                [
+                  5,
+                  "Swift",
+                  "Delivered",
+                  9
+                ],
+                [
+                  6,
+                  "Swift",
+                  "Delivered",
+                  4
+                ],
+                [
+                  7,
+                  "ParcelPro",
+                  "Delivered",
+                  8
+                ],
+                [
+                  8,
+                  "ParcelPro",
+                  "Delivered",
+                  3
+                ],
+                [
+                  9,
+                  "ParcelPro",
+                  "Delivered",
+                  6
+                ],
+                [
+                  10,
+                  "ParcelPro",
+                  "Delivered",
+                  2
+                ],
+                [
+                  11,
+                  "ParcelPro",
+                  "In Transit",
+                  null
+                ],
+                [
+                  12,
+                  "QuickBox",
+                  "Delivered",
+                  5
+                ],
+                [
+                  13,
+                  "QuickBox",
+                  "Cancelled",
+                  null
+                ],
+                [
+                  14,
+                  "RoadLink",
+                  "In Transit",
+                  null
+                ],
+                [
+                  15,
+                  "RoadLink",
+                  "Cancelled",
+                  null
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a CTE with ROW_NUMBER() to assign positions within each carrier, sorted by delivery_days ascending and shipment_id ascending as the tie-breaker.",
+            "Use COUNT(*) OVER (PARTITION BY carrier) to determine the number of Delivered shipments per carrier. Filter to status = 'Delivered' before calculating either window function.",
+            "For odd counts, choose the one middle row. For even counts, average the two middle rows. Count duplicate delivery durations as separate shipments; do not use DISTINCT.",
+            "Display exactly carrier and median_delivery_days, rounded to two decimal places. Exclude carriers with no Delivered shipments.",
+            "Sort by median_delivery_days ascending, then carrier ascending."
+          ],
+          "output": {
+            "headers": [
+              "carrier",
+              "median_delivery_days"
+            ],
+            "rows": [
+              [
+                "Swift",
+                4
+              ],
+              [
+                "ParcelPro",
+                4.5
+              ],
+              [
+                "QuickBox",
+                5
+              ]
+            ]
+          },
+          "hint": "For n sorted values with positions starting at 1, the middle positions are FLOOR((n+1)/2) and FLOOR((n+2)/2). For odd n the two positions are equal; for even n they differ by one.",
+          "solution": "WITH ranked AS (\n    SELECT carrier, delivery_days,\n           ROW_NUMBER() OVER (\n               PARTITION BY carrier\n               ORDER BY delivery_days, shipment_id\n           ) AS rn,\n           COUNT(*) OVER (PARTITION BY carrier) AS n\n    FROM shipments\n    WHERE status = 'Delivered'\n)\nSELECT carrier, ROUND(AVG(delivery_days), 2) AS median_delivery_days\nFROM ranked\nWHERE rn IN (FLOOR((n + 1) / 2), FLOOR((n + 2) / 2))\nGROUP BY carrier\nORDER BY median_delivery_days ASC, carrier ASC;",
+          "steps": [
+            "Filter out Cancelled and In Transit shipments first. RoadLink has no Delivered shipments and therefore never enters the CTE.",
+            "Swift has five Delivered durations: 2, 4, 4, 7, 9. Assign positions 1 through 5, keeping both shipments with duration 4. Both middle-position formulas equal 3, so only row 3 remains and the median is 4.",
+            "ParcelPro has four durations: 2, 3, 6, 8. The middle positions are 2 and 3. Their average is (3 + 6) / 2 = 4.5.",
+            "QuickBox has only one Delivered shipment, with duration 5. Both formulas equal position 1, so its median is 5.",
+            "GROUP BY carrier averages the selected middle values per carrier. ROUND formats to two decimal places, and ORDER BY sorts Swift, ParcelPro, then QuickBox."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        }
+      ]
     }
   ]
 }
