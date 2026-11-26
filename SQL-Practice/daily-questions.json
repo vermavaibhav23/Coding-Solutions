@@ -5992,6 +5992,524 @@
           "solvedInitially": false
         }
       ]
+    },
+    {
+      "date": "2026-11-27",
+      "day": 11,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Suppliers With Consistent Quality",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "SELECT",
+            "WHERE",
+            "GROUP BY",
+            "HAVING",
+            "MIN",
+            "AVG",
+            "ROUND",
+            "ORDER BY"
+          ],
+          "intro": "The supplier_inspections table stores one inspection per inspection_id. Scores are non-NULL integer values from 0 to 100. Only finalized inspections count toward the quality audit.",
+          "tables": [
+            {
+              "name": "supplier_inspections",
+              "headers": [
+                "inspection_id",
+                "supplier_id",
+                "score",
+                "status"
+              ],
+              "rows": [
+                [
+                  1,
+                  101,
+                  85,
+                  "Finalized"
+                ],
+                [
+                  2,
+                  101,
+                  90,
+                  "Finalized"
+                ],
+                [
+                  3,
+                  101,
+                  95,
+                  "Finalized"
+                ],
+                [
+                  4,
+                  101,
+                  30,
+                  "Draft"
+                ],
+                [
+                  5,
+                  102,
+                  70,
+                  "Finalized"
+                ],
+                [
+                  6,
+                  102,
+                  100,
+                  "Finalized"
+                ],
+                [
+                  7,
+                  102,
+                  100,
+                  "Finalized"
+                ],
+                [
+                  8,
+                  103,
+                  95,
+                  "Finalized"
+                ],
+                [
+                  9,
+                  103,
+                  100,
+                  "Finalized"
+                ],
+                [
+                  10,
+                  103,
+                  100,
+                  "Draft"
+                ],
+                [
+                  11,
+                  104,
+                  80,
+                  "Finalized"
+                ],
+                [
+                  12,
+                  104,
+                  80,
+                  "Finalized"
+                ],
+                [
+                  13,
+                  104,
+                  80,
+                  "Finalized"
+                ],
+                [
+                  14,
+                  105,
+                  80,
+                  "Finalized"
+                ],
+                [
+                  15,
+                  105,
+                  90,
+                  "Finalized"
+                ],
+                [
+                  16,
+                  105,
+                  100,
+                  "Finalized"
+                ],
+                [
+                  17,
+                  106,
+                  95,
+                  "Draft"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Return suppliers with at least three Finalized inspections, where every Finalized score is at least 80.",
+            "Ignore Draft inspections completely, including when computing the minimum and average.",
+            "Display exactly supplier_id, inspection_count, minimum_score and average_score (rounded to two decimal places).",
+            "Sort by average_score descending, then supplier_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "supplier_id",
+              "inspection_count",
+              "minimum_score",
+              "average_score"
+            ],
+            "rows": [
+              [
+                101,
+                3,
+                85,
+                90
+              ],
+              [
+                105,
+                3,
+                80,
+                90
+              ],
+              [
+                104,
+                3,
+                80,
+                80
+              ]
+            ]
+          },
+          "hint": "Filter finalized rows before grouping. Use HAVING to check both the number of inspections and the minimum score.",
+          "solution": "SELECT supplier_id, COUNT(*) AS inspection_count,\n       MIN(score) AS minimum_score, ROUND(AVG(score), 2) AS average_score\nFROM supplier_inspections\nWHERE status = 'Finalized'\nGROUP BY supplier_id\nHAVING COUNT(*) >= 3 AND MIN(score) >= 80\nORDER BY average_score DESC, supplier_id ASC;",
+          "steps": [
+            "Discard Draft inspections. Supplier 101's score of 30 is a Draft and does not count; supplier 106 has no finalized rows.",
+            "Group the remaining rows by supplier_id. Supplier 103 has only two finalized inspections and fails the count condition.",
+            "Supplier 102 has three finalized scores, but its minimum is 70, so it fails the quality condition.",
+            "Suppliers 101, 104 and 105 pass. Their minimum scores are 85, 80 and 80, and averages are 90, 80 and 90 respectively.",
+            "Sort by average descending, then supplier ID ascending to place 101 before 105, followed by 104."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        },
+        {
+          "id": 2,
+          "title": "Reserve Inventory Without Overselling",
+          "difficulty": "Medium",
+          "topics": [
+            "UPDATE JOIN",
+            "Derived Table",
+            "GROUP BY",
+            "SUM",
+            "WHERE",
+            "DML"
+          ],
+          "intro": "Inventory contains one row per product_id. Reservation requests contain unique request IDs and positive integer quantities. A batch job must reserve the total requested quantity of each product, but only when that product has enough available units. Assume this is a one-time operation on the provided snapshot with no concurrent changes.",
+          "tables": [
+            {
+              "name": "inventory",
+              "headers": [
+                "product_id",
+                "available_qty",
+                "reserved_qty"
+              ],
+              "rows": [
+                [
+                  1,
+                  12,
+                  3
+                ],
+                [
+                  2,
+                  5,
+                  1
+                ],
+                [
+                  3,
+                  8,
+                  0
+                ],
+                [
+                  4,
+                  4,
+                  2
+                ],
+                [
+                  5,
+                  10,
+                  0
+                ],
+                [
+                  6,
+                  0,
+                  5
+                ]
+              ]
+            },
+            {
+              "name": "reservation_requests",
+              "headers": [
+                "request_id",
+                "product_id",
+                "quantity",
+                "status"
+              ],
+              "rows": [
+                [
+                  11,
+                  1,
+                  4,
+                  "Pending"
+                ],
+                [
+                  12,
+                  1,
+                  3,
+                  "Pending"
+                ],
+                [
+                  13,
+                  1,
+                  8,
+                  "Cancelled"
+                ],
+                [
+                  14,
+                  2,
+                  3,
+                  "Pending"
+                ],
+                [
+                  15,
+                  2,
+                  4,
+                  "Pending"
+                ],
+                [
+                  16,
+                  3,
+                  8,
+                  "Pending"
+                ],
+                [
+                  17,
+                  4,
+                  2,
+                  "Processed"
+                ],
+                [
+                  18,
+                  4,
+                  1,
+                  "Cancelled"
+                ],
+                [
+                  19,
+                  6,
+                  1,
+                  "Pending"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Write exactly one MySQL 8.0 UPDATE statement using a JOIN to a derived table that sums Pending request quantities per product_id.",
+            "For each product, if the total Pending quantity is less than or equal to available_qty, subtract the total from available_qty and add the same total to reserved_qty.",
+            "If the total exceeds available_qty, leave both inventory columns unchanged; do not partially reserve requests. Products with no Pending requests must also remain unchanged.",
+            "Do not modify reservation_requests or hardcode individual product IDs or quantities. The expected output shows the entire inventory table after the UPDATE, ordered by product_id for illustration."
+          ],
+          "output": {
+            "headers": [
+              "product_id",
+              "available_qty",
+              "reserved_qty"
+            ],
+            "rows": [
+              [
+                1,
+                5,
+                10
+              ],
+              [
+                2,
+                5,
+                1
+              ],
+              [
+                3,
+                0,
+                8
+              ],
+              [
+                4,
+                4,
+                2
+              ],
+              [
+                5,
+                10,
+                0
+              ],
+              [
+                6,
+                0,
+                5
+              ]
+            ]
+          },
+          "hint": "Aggregate Pending requests by product_id inside a subquery in the JOIN, then compare that sum against available_qty in the UPDATE's WHERE clause.",
+          "solution": "UPDATE inventory AS i\nJOIN (\n    SELECT product_id, SUM(quantity) AS pending_qty\n    FROM reservation_requests\n    WHERE status = 'Pending'\n    GROUP BY product_id\n) AS r ON r.product_id = i.product_id\nSET i.available_qty = i.available_qty - r.pending_qty,\n    i.reserved_qty = i.reserved_qty + r.pending_qty\nWHERE i.available_qty >= r.pending_qty;",
+          "steps": [
+            "Filter requests to Pending status. Ignore request 13, 17 and 18.",
+            "Sum quantities by product: product 1 needs 7, product 2 needs 7, product 3 needs 8, and product 6 needs 1. Products 4 and 5 have no Pending requests.",
+            "Join the totals to inventory. Products 2 and 6 lack sufficient stock, so both of their inventory values remain unchanged.",
+            "Product 1 has 12 available and 3 reserved. Subtract 7 from available and add 7 to reserved, giving 5 and 10.",
+            "Product 3 has exactly 8 available, so reserving 8 is allowed. It ends with 0 available and 8 reserved. Products 4 and 5 remain unchanged because the derived table has no matching rows."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        },
+        {
+          "id": 3,
+          "title": "Detect New Personal Best Scores",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "MAX OVER",
+            "PARTITION BY",
+            "ROWS Frame",
+            "Window Functions",
+            "WHERE"
+          ],
+          "intro": "Each row in game_attempts represents one attempt by a player. Scores and played_at values are non-NULL. Multiple attempts can occur at the same timestamp; the lower attempt_id happened first.",
+          "tables": [
+            {
+              "name": "game_attempts",
+              "headers": [
+                "attempt_id",
+                "player_id",
+                "played_at",
+                "score"
+              ],
+              "rows": [
+                [
+                  1,
+                  101,
+                  "2026-11-01 09:00:00",
+                  50
+                ],
+                [
+                  2,
+                  101,
+                  "2026-11-02 09:00:00",
+                  40
+                ],
+                [
+                  3,
+                  101,
+                  "2026-11-03 09:00:00",
+                  60
+                ],
+                [
+                  4,
+                  101,
+                  "2026-11-03 09:00:00",
+                  60
+                ],
+                [
+                  5,
+                  101,
+                  "2026-11-04 09:00:00",
+                  55
+                ],
+                [
+                  6,
+                  101,
+                  "2026-11-05 09:00:00",
+                  75
+                ],
+                [
+                  7,
+                  102,
+                  "2026-11-01 10:00:00",
+                  90
+                ],
+                [
+                  8,
+                  102,
+                  "2026-11-02 10:00:00",
+                  90
+                ],
+                [
+                  9,
+                  102,
+                  "2026-11-03 10:00:00",
+                  80
+                ],
+                [
+                  10,
+                  102,
+                  "2026-11-03 10:00:00",
+                  95
+                ],
+                [
+                  11,
+                  103,
+                  "2026-11-01 08:00:00",
+                  100
+                ],
+                [
+                  12,
+                  104,
+                  "2026-11-01 11:00:00",
+                  70
+                ],
+                [
+                  13,
+                  104,
+                  "2026-11-02 11:00:00",
+                  65
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a CTE and MAX(score) as a window function to calculate each attempt's previous_best: the maximum score from all strictly earlier attempts by the same player.",
+            "Order attempts within each player by played_at ascending, then attempt_id ascending. Use a ROWS window frame ending at 1 PRECEDING so the current attempt is excluded.",
+            "Return only attempts whose score is strictly greater than previous_best. Exclude first attempts (which have no previous best) and scores equal to a previous best.",
+            "Display exactly player_id, attempt_id, played_at, score, previous_best and improvement (score minus previous_best).",
+            "Sort by player_id ascending, played_at ascending, then attempt_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "player_id",
+              "attempt_id",
+              "played_at",
+              "score",
+              "previous_best",
+              "improvement"
+            ],
+            "rows": [
+              [
+                101,
+                3,
+                "2026-11-03 09:00:00",
+                60,
+                50,
+                10
+              ],
+              [
+                101,
+                6,
+                "2026-11-05 09:00:00",
+                75,
+                60,
+                15
+              ],
+              [
+                102,
+                10,
+                "2026-11-03 10:00:00",
+                95,
+                90,
+                5
+              ]
+            ]
+          },
+          "hint": "Use MAX(score) OVER (PARTITION BY ... ORDER BY ... ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING), then filter the calculated value in the outer query.",
+          "solution": "WITH attempt_history AS (\n    SELECT player_id, attempt_id, played_at, score,\n           MAX(score) OVER (\n               PARTITION BY player_id\n               ORDER BY played_at, attempt_id\n               ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING\n           ) AS previous_best\n    FROM game_attempts\n)\nSELECT player_id, attempt_id, played_at, score, previous_best,\n       score - previous_best AS improvement\nFROM attempt_history\nWHERE score > previous_best\nORDER BY player_id, played_at, attempt_id;",
+          "steps": [
+            "Order each player's attempts by timestamp and attempt ID. The first attempt has an empty preceding frame, so previous_best is NULL and it is excluded by the WHERE comparison.",
+            "Player 101's second attempt scores 40 against the earlier best of 50, so it does not qualify. Attempt 3 scores 60 against a previous best of 50, improving by 10.",
+            "Attempt 4 shares the timestamp with attempt 3 but comes later by ID. It ties the previous best of 60, so it is excluded. Attempt 5 scores 55 and is also excluded. Attempt 6 improves the best from 60 to 75, by 15.",
+            "Player 102's attempts 8 and 9 do not beat 90. Attempt 10 scores 95, improving by 5. Player 103 has only one attempt, and player 104 never beats the first score.",
+            "Return the three qualifying attempts and sort by player, timestamp and attempt ID."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        }
+      ]
     }
   ]
 }
