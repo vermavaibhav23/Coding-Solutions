@@ -6510,6 +6510,503 @@
           "solvedInitially": false
         }
       ]
+    },
+    {
+      "date": "2026-11-28",
+      "day": 12,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Payment Reconciliation Exceptions",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "LEFT JOIN",
+            "CASE",
+            "IS NULL",
+            "WHERE",
+            "ORDER BY"
+          ],
+          "intro": "The internal_payments table records payments in the application. The processor_payments table records the corresponding payment processor results. Each table has at most one row per payment_id. Amounts are non-NULL integer cents and currencies are non-NULL three-letter codes. Audit internal payments only; processor-only records are outside this audit.",
+          "tables": [
+            {
+              "name": "internal_payments",
+              "headers": [
+                "payment_id",
+                "amount_cents",
+                "currency"
+              ],
+              "rows": [
+                [
+                  101,
+                  1200,
+                  "USD"
+                ],
+                [
+                  102,
+                  2500,
+                  "USD"
+                ],
+                [
+                  103,
+                  4000,
+                  "INR"
+                ],
+                [
+                  104,
+                  800,
+                  "EUR"
+                ],
+                [
+                  105,
+                  3000,
+                  "USD"
+                ],
+                [
+                  106,
+                  1000,
+                  "EUR"
+                ],
+                [
+                  107,
+                  900,
+                  "INR"
+                ]
+              ]
+            },
+            {
+              "name": "processor_payments",
+              "headers": [
+                "payment_id",
+                "amount_cents",
+                "currency"
+              ],
+              "rows": [
+                [
+                  101,
+                  1200,
+                  "USD"
+                ],
+                [
+                  102,
+                  2400,
+                  "USD"
+                ],
+                [
+                  104,
+                  800,
+                  "USD"
+                ],
+                [
+                  105,
+                  3100,
+                  "EUR"
+                ],
+                [
+                  106,
+                  1000,
+                  "EUR"
+                ],
+                [
+                  108,
+                  500,
+                  "USD"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a LEFT JOIN to compare each internal payment with its processor record using payment_id.",
+            "Return only internal payments with no matching processor record, a different amount, or a different currency. Exclude exact matches and processor-only records.",
+            "Display exactly payment_id, internal_amount, processor_amount, and issue. Assign issue using CASE: 'Missing' if no processor row exists; otherwise 'Both mismatch' if both amount and currency differ; otherwise 'Amount mismatch' or 'Currency mismatch' as appropriate.",
+            "For missing processor records, processor_amount must be NULL. Sort by payment_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "payment_id",
+              "internal_amount",
+              "processor_amount",
+              "issue"
+            ],
+            "rows": [
+              [
+                102,
+                2500,
+                2400,
+                "Amount mismatch"
+              ],
+              [
+                103,
+                4000,
+                null,
+                "Missing"
+              ],
+              [
+                104,
+                800,
+                800,
+                "Currency mismatch"
+              ],
+              [
+                105,
+                3000,
+                3100,
+                "Both mismatch"
+              ],
+              [
+                107,
+                900,
+                null,
+                "Missing"
+              ]
+            ]
+          },
+          "hint": "Keep internal_payments on the left. Test the joined payment_id for NULL before comparing values. In CASE, test the condition for both mismatches before the individual conditions.",
+          "solution": "SELECT i.payment_id, i.amount_cents AS internal_amount,\n       p.amount_cents AS processor_amount,\n       CASE\n           WHEN p.payment_id IS NULL THEN 'Missing'\n           WHEN i.amount_cents <> p.amount_cents AND i.currency <> p.currency THEN 'Both mismatch'\n           WHEN i.amount_cents <> p.amount_cents THEN 'Amount mismatch'\n           ELSE 'Currency mismatch'\n       END AS issue\nFROM internal_payments AS i\nLEFT JOIN processor_payments AS p ON p.payment_id = i.payment_id\nWHERE p.payment_id IS NULL\n   OR i.amount_cents <> p.amount_cents\n   OR i.currency <> p.currency\nORDER BY i.payment_id;",
+          "steps": [
+            "LEFT JOIN the processor table to internal payments. IDs 103 and 107 have no processor match, so their processor columns are NULL. ID 108 appears only in the processor and cannot enter the result.",
+            "Compare the amounts and currencies of matched records. IDs 101 and 106 match exactly, so WHERE removes them.",
+            "ID 102 differs only in amount; ID 104 differs only in currency. ID 105 differs in both amount and currency.",
+            "CASE first detects missing records, then both mismatches, then the individual mismatch types. The remaining ELSE is a currency mismatch because WHERE already removed exact matches.",
+            "Return the five exception rows in payment_id order. The processor amounts of IDs 103 and 107 remain NULL."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        },
+        {
+          "id": 2,
+          "title": "Product Price at the Time of Purchase",
+          "difficulty": "Medium",
+          "topics": [
+            "LEFT JOIN",
+            "Correlated Subquery",
+            "MAX",
+            "Date Comparison",
+            "ORDER BY"
+          ],
+          "intro": "Each row in purchases records a product and purchase date. product_price_history records the price in cents starting on each effective_from date. A price stays in effect until a newer price takes effect. The pair (product_id, effective_from) is unique. All dates are DATE values and all recorded prices are non-NULL.",
+          "tables": [
+            {
+              "name": "purchases",
+              "headers": [
+                "purchase_id",
+                "product_id",
+                "purchased_on",
+                "quantity"
+              ],
+              "rows": [
+                [
+                  1,
+                  101,
+                  "2026-11-01",
+                  2
+                ],
+                [
+                  2,
+                  101,
+                  "2026-11-05",
+                  1
+                ],
+                [
+                  3,
+                  101,
+                  "2026-11-12",
+                  3
+                ],
+                [
+                  4,
+                  102,
+                  "2026-11-03",
+                  1
+                ],
+                [
+                  5,
+                  102,
+                  "2026-11-09",
+                  2
+                ],
+                [
+                  6,
+                  103,
+                  "2026-11-15",
+                  1
+                ],
+                [
+                  7,
+                  101,
+                  "2026-11-20",
+                  2
+                ]
+              ]
+            },
+            {
+              "name": "product_price_history",
+              "headers": [
+                "product_id",
+                "effective_from",
+                "price_cents"
+              ],
+              "rows": [
+                [
+                  101,
+                  "2026-11-02",
+                  1000
+                ],
+                [
+                  101,
+                  "2026-11-05",
+                  1200
+                ],
+                [
+                  101,
+                  "2026-11-20",
+                  900
+                ],
+                [
+                  102,
+                  "2026-10-25",
+                  500
+                ],
+                [
+                  102,
+                  "2026-11-10",
+                  700
+                ],
+                [
+                  104,
+                  "2026-11-01",
+                  2000
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "For every purchase, find the most recent price for its product whose effective_from is on or before purchased_on. A price effective on the purchase date must be eligible.",
+            "Use a LEFT JOIN and a correlated scalar subquery with MAX(effective_from) to identify the applicable price date. Do not select a future price.",
+            "Keep purchases with no applicable price, including products with no price history. For those purchases, unit_price_cents and total_cents must both be NULL.",
+            "Display exactly purchase_id, product_id, unit_price_cents and total_cents (quantity multiplied by the applicable unit price). Sort by purchase_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "purchase_id",
+              "product_id",
+              "unit_price_cents",
+              "total_cents"
+            ],
+            "rows": [
+              [
+                1,
+                101,
+                null,
+                null
+              ],
+              [
+                2,
+                101,
+                1200,
+                1200
+              ],
+              [
+                3,
+                101,
+                1200,
+                3600
+              ],
+              [
+                4,
+                102,
+                500,
+                500
+              ],
+              [
+                5,
+                102,
+                500,
+                1000
+              ],
+              [
+                6,
+                103,
+                null,
+                null
+              ],
+              [
+                7,
+                101,
+                900,
+                1800
+              ]
+            ]
+          },
+          "hint": "For each purchase, the correlated MAX subquery should filter by the current product_id and effective_from <= purchased_on. Match the history row on both product_id and that returned date, using LEFT JOIN.",
+          "solution": "SELECT p.purchase_id, p.product_id,\n       h.price_cents AS unit_price_cents,\n       p.quantity * h.price_cents AS total_cents\nFROM purchases AS p\nLEFT JOIN product_price_history AS h\n    ON h.product_id = p.product_id\n   AND h.effective_from = (\n       SELECT MAX(h2.effective_from)\n       FROM product_price_history AS h2\n       WHERE h2.product_id = p.product_id\n         AND h2.effective_from <= p.purchased_on\n   )\nORDER BY p.purchase_id;",
+          "steps": [
+            "For purchase 1, product 101 has no price on or before November 1. MAX returns NULL, so the LEFT JOIN preserves the purchase with NULL price and total.",
+            "For purchase 2, the eligible dates are November 2 and November 5. MAX chooses November 5, giving 1200 cents. Purchase 3 still uses that price because the November 20 change is in the future; 3 × 1200 = 3600.",
+            "For purchases 4 and 5, product 102's October 25 price of 500 applies. Its November 10 price is too late for both purchases. Their totals are 500 and 1000.",
+            "Product 103 has no price history, so purchase 6 remains with NULL price and total. Purchase 7 occurs on November 20, when the new 900-cent price takes effect; its total is 1800.",
+            "Return all seven purchases in ID order. Because each product and effective date pair is unique, each purchase matches at most one price row."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        },
+        {
+          "id": 3,
+          "title": "Find All Reports in a Management Hierarchy",
+          "difficulty": "Medium",
+          "topics": [
+            "Recursive CTE",
+            "UNION ALL",
+            "Self JOIN",
+            "Hierarchy",
+            "ORDER BY"
+          ],
+          "intro": "The employees table represents an acyclic management hierarchy. employee_id is the unique primary key and manager_id references another employee, or is NULL for a root. Each employee has at most one immediate manager. The organization needs all direct and indirect reports of employee 10, grouped by their reporting branch.",
+          "tables": [
+            {
+              "name": "employees",
+              "headers": [
+                "employee_id",
+                "employee_name",
+                "manager_id"
+              ],
+              "rows": [
+                [
+                  10,
+                  "Anika",
+                  null
+                ],
+                [
+                  11,
+                  "Ben",
+                  10
+                ],
+                [
+                  12,
+                  "Charu",
+                  10
+                ],
+                [
+                  13,
+                  "Dev",
+                  11
+                ],
+                [
+                  14,
+                  "Esha",
+                  11
+                ],
+                [
+                  15,
+                  "Farah",
+                  13
+                ],
+                [
+                  16,
+                  "Gopal",
+                  12
+                ],
+                [
+                  17,
+                  "Hana",
+                  16
+                ],
+                [
+                  20,
+                  "Ishan",
+                  null
+                ],
+                [
+                  21,
+                  "Jaya",
+                  20
+                ],
+                [
+                  22,
+                  "Kiran",
+                  21
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Use a WITH RECURSIVE CTE to find every direct and indirect report of employee_id = 10, at any depth. Do not include employee 10 or employees in unrelated reporting trees.",
+            "Set depth to 1 for direct reports, 2 for employees reporting to a direct report, and so on.",
+            "For each employee, branch_id must identify the direct report of employee 10 through whom that employee reports. For a direct report, branch_id equals their own employee_id; all descendants inherit that branch_id.",
+            "Display exactly employee_id, employee_name, manager_id, depth and branch_id. Sort by depth ascending, branch_id ascending, then employee_id ascending. Do not hardcode report IDs or a maximum depth."
+          ],
+          "output": {
+            "headers": [
+              "employee_id",
+              "employee_name",
+              "manager_id",
+              "depth",
+              "branch_id"
+            ],
+            "rows": [
+              [
+                11,
+                "Ben",
+                10,
+                1,
+                11
+              ],
+              [
+                12,
+                "Charu",
+                10,
+                1,
+                12
+              ],
+              [
+                13,
+                "Dev",
+                11,
+                2,
+                11
+              ],
+              [
+                14,
+                "Esha",
+                11,
+                2,
+                11
+              ],
+              [
+                16,
+                "Gopal",
+                12,
+                2,
+                12
+              ],
+              [
+                15,
+                "Farah",
+                13,
+                3,
+                11
+              ],
+              [
+                17,
+                "Hana",
+                16,
+                3,
+                12
+              ]
+            ]
+          },
+          "hint": "The anchor query selects employees whose manager_id is 10. In the recursive member, join employees to the previous level by manager_id = employee_id, increment depth, and carry forward branch_id.",
+          "solution": "WITH RECURSIVE reporting_tree AS (\n    SELECT employee_id, employee_name, manager_id,\n           1 AS depth, employee_id AS branch_id\n    FROM employees\n    WHERE manager_id = 10\n    UNION ALL\n    SELECT e.employee_id, e.employee_name, e.manager_id,\n           r.depth + 1, r.branch_id\n    FROM employees AS e\n    JOIN reporting_tree AS r ON e.manager_id = r.employee_id\n)\nSELECT employee_id, employee_name, manager_id, depth, branch_id\nFROM reporting_tree\nORDER BY depth, branch_id, employee_id;",
+          "steps": [
+            "The anchor query finds Ben (11) and Charu (12) because their manager_id is 10. Give each depth 1 and their own ID as branch_id.",
+            "The first recursive iteration finds Dev (13) and Esha (14) reporting to Ben, and Gopal (16) reporting to Charu. Give them depth 2 and inherited branch IDs 11, 11 and 12.",
+            "The next iteration finds Farah (15) under Dev and Hana (17) under Gopal. Both have depth 3; their branch IDs are still 11 and 12.",
+            "Neither Farah nor Hana has a report, so the next iteration returns no rows and recursion stops. The unrelated tree starting at Ishan (20) never enters the anchor or recursion.",
+            "UNION ALL combines the anchor and every recursive level. The final ORDER BY produces the seven rows in depth, branch and ID order."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        }
+      ]
     }
   ]
 }
