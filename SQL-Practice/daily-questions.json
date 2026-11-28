@@ -7007,6 +7007,536 @@
           "solvedInitially": false
         }
       ]
+    },
+    {
+      "date": "2026-11-29",
+      "day": 13,
+      "questions": [
+        {
+          "id": 1,
+          "title": "Choose the Preferred Customer Contact",
+          "difficulty": "Easy–Medium",
+          "topics": [
+            "SELECT",
+            "WHERE",
+            "CASE",
+            "COALESCE",
+            "NULLIF",
+            "TRIM",
+            "ORDER BY"
+          ],
+          "intro": "The customer_contacts table stores one row per customer. Active customers should be contacted by email when available, otherwise by phone. NULL, empty strings and strings containing only ordinary spaces are all considered missing. Phone values are strings so leading zeros are preserved.",
+          "tables": [
+            {
+              "name": "customer_contacts",
+              "headers": [
+                "customer_id",
+                "is_active",
+                "email",
+                "phone"
+              ],
+              "rows": [
+                [
+                  1,
+                  1,
+                  "  ana@example.com  ",
+                  "0901001"
+                ],
+                [
+                  2,
+                  1,
+                  null,
+                  " 0901002 "
+                ],
+                [
+                  3,
+                  1,
+                  "   ",
+                  "0901003"
+                ],
+                [
+                  4,
+                  1,
+                  "",
+                  "  "
+                ],
+                [
+                  5,
+                  0,
+                  "eli@example.com",
+                  "0901005"
+                ],
+                [
+                  6,
+                  1,
+                  "fay@example.com",
+                  null
+                ],
+                [
+                  7,
+                  1,
+                  null,
+                  null
+                ],
+                [
+                  8,
+                  1,
+                  "",
+                  "0901008"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Return only active customers (is_active = 1) who have at least one usable contact value.",
+            "Trim leading and trailing spaces from email and phone. Treat empty trimmed values as NULL.",
+            "Prefer email over phone. Display exactly customer_id, contact_channel ('Email' or 'Phone'), and contact_value (the chosen trimmed string).",
+            "Sort by customer_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "customer_id",
+              "contact_channel",
+              "contact_value"
+            ],
+            "rows": [
+              [
+                1,
+                "Email",
+                "ana@example.com"
+              ],
+              [
+                2,
+                "Phone",
+                "0901002"
+              ],
+              [
+                3,
+                "Phone",
+                "0901003"
+              ],
+              [
+                6,
+                "Email",
+                "fay@example.com"
+              ],
+              [
+                8,
+                "Phone",
+                "0901008"
+              ]
+            ]
+          },
+          "hint": "NULLIF(TRIM(column), '') converts blank strings to NULL. COALESCE can choose the first non-NULL value. Use CASE to label which channel was chosen.",
+          "solution": "SELECT customer_id,\n       CASE WHEN NULLIF(TRIM(email), '') IS NOT NULL\n            THEN 'Email' ELSE 'Phone' END AS contact_channel,\n       COALESCE(NULLIF(TRIM(email), ''), NULLIF(TRIM(phone), '')) AS contact_value\nFROM customer_contacts\nWHERE is_active = 1\n  AND COALESCE(NULLIF(TRIM(email), ''), NULLIF(TRIM(phone), '')) IS NOT NULL\nORDER BY customer_id;",
+          "steps": [
+            "TRIM removes surrounding spaces. NULLIF then turns empty strings into NULL, while existing NULL values remain NULL.",
+            "Customer 1 has both channels, so email wins. Customer 6 has only email, so email wins there too.",
+            "Customers 2, 3 and 8 have missing emails but usable phone numbers. COALESCE selects their phones and preserves the leading zeros.",
+            "Customers 4 and 7 have no usable contact; the second WHERE condition removes them. Customer 5 is inactive and is also removed.",
+            "CASE labels each remaining contact based on whether email is usable. Sort the five rows by customer_id."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        },
+        {
+          "id": 2,
+          "title": "Frequently Co-Purchased Product Pairs",
+          "difficulty": "Medium",
+          "topics": [
+            "INNER JOIN",
+            "Self JOIN",
+            "COUNT DISTINCT",
+            "GROUP BY",
+            "HAVING",
+            "ORDER BY"
+          ],
+          "intro": "The purchase_orders table has one row per order. The purchase_lines table stores individual product lines; an order can contain the same product on multiple lines. A pair of two different products is considered co-purchased if both appear in the same completed order. All IDs and statuses are non-NULL.",
+          "tables": [
+            {
+              "name": "purchase_orders",
+              "headers": [
+                "order_id",
+                "status"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Completed"
+                ],
+                [
+                  2,
+                  "Completed"
+                ],
+                [
+                  3,
+                  "Completed"
+                ],
+                [
+                  4,
+                  "Completed"
+                ],
+                [
+                  5,
+                  "Cancelled"
+                ],
+                [
+                  6,
+                  "Completed"
+                ],
+                [
+                  7,
+                  "Completed"
+                ],
+                [
+                  8,
+                  "Completed"
+                ]
+              ]
+            },
+            {
+              "name": "purchase_lines",
+              "headers": [
+                "line_id",
+                "order_id",
+                "product_id"
+              ],
+              "rows": [
+                [
+                  1,
+                  1,
+                  10
+                ],
+                [
+                  2,
+                  1,
+                  10
+                ],
+                [
+                  3,
+                  1,
+                  20
+                ],
+                [
+                  4,
+                  1,
+                  30
+                ],
+                [
+                  5,
+                  2,
+                  10
+                ],
+                [
+                  6,
+                  2,
+                  20
+                ],
+                [
+                  7,
+                  3,
+                  10
+                ],
+                [
+                  8,
+                  3,
+                  30
+                ],
+                [
+                  9,
+                  4,
+                  20
+                ],
+                [
+                  10,
+                  4,
+                  30
+                ],
+                [
+                  11,
+                  5,
+                  10
+                ],
+                [
+                  12,
+                  5,
+                  40
+                ],
+                [
+                  13,
+                  6,
+                  10
+                ],
+                [
+                  14,
+                  6,
+                  40
+                ],
+                [
+                  15,
+                  7,
+                  10
+                ],
+                [
+                  16,
+                  7,
+                  20
+                ],
+                [
+                  17,
+                  8,
+                  40
+                ],
+                [
+                  18,
+                  8,
+                  40
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Find unordered pairs of different products appearing together in at least two distinct Completed orders.",
+            "Count each qualifying order only once per pair, even if a product has multiple lines in the order. Exclude Cancelled orders.",
+            "Display exactly product_id_1 (the smaller product ID), product_id_2 (the larger product ID), and order_count (number of distinct qualifying orders).",
+            "Sort by order_count descending, then product_id_1 ascending, then product_id_2 ascending."
+          ],
+          "output": {
+            "headers": [
+              "product_id_1",
+              "product_id_2",
+              "order_count"
+            ],
+            "rows": [
+              [
+                10,
+                20,
+                3
+              ],
+              [
+                10,
+                30,
+                2
+              ],
+              [
+                20,
+                30,
+                2
+              ]
+            ]
+          },
+          "hint": "Join purchase_lines to itself on order_id. Require the first product ID to be less than the second to avoid reversed pairs and self-pairs. Count distinct order IDs after filtering completed orders.",
+          "solution": "SELECT a.product_id AS product_id_1,\n       b.product_id AS product_id_2,\n       COUNT(DISTINCT a.order_id) AS order_count\nFROM purchase_lines AS a\nJOIN purchase_lines AS b\n  ON a.order_id = b.order_id AND a.product_id < b.product_id\nJOIN purchase_orders AS o ON o.order_id = a.order_id\nWHERE o.status = 'Completed'\nGROUP BY a.product_id, b.product_id\nHAVING COUNT(DISTINCT a.order_id) >= 2\nORDER BY order_count DESC, product_id_1 ASC, product_id_2 ASC;",
+          "steps": [
+            "Self-join the line table using the same order_id and require a.product_id < b.product_id. This generates each pair in ascending ID order and excludes pairs of a product with itself.",
+            "Order 1 contains products 10, 20 and 30. It produces pairs (10,20), (10,30) and (20,30); the duplicate line for 10 can create extra joined rows.",
+            "Join the order table and remove order 5 because it is Cancelled. Order 8 contains only product 40, so it produces no pair.",
+            "Group by the two product IDs and count DISTINCT order IDs. Pair (10,20) appears in orders 1, 2 and 7; (10,30) appears in 1 and 3; (20,30) appears in 1 and 4. Pair (10,40) appears only in completed order 6.",
+            "HAVING removes (10,40). Sorting by count descending and then both IDs ascending produces the three expected rows."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        },
+        {
+          "id": 3,
+          "title": "Product Revenue Share and Rank Within Category",
+          "difficulty": "Medium",
+          "topics": [
+            "CTE",
+            "INNER JOIN",
+            "GROUP BY",
+            "SUM OVER",
+            "DENSE_RANK",
+            "PARTITION BY",
+            "ROUND",
+            "Window Functions"
+          ],
+          "intro": "The catalog_products table assigns each product to exactly one category. The sales_lines table has one row per sale line with a positive integer line_amount representing total line revenue (not unit price). Only Paid lines count toward revenue. All IDs, statuses and amounts are non-NULL.",
+          "tables": [
+            {
+              "name": "catalog_products",
+              "headers": [
+                "product_id",
+                "category_id"
+              ],
+              "rows": [
+                [
+                  101,
+                  1
+                ],
+                [
+                  102,
+                  1
+                ],
+                [
+                  103,
+                  1
+                ],
+                [
+                  104,
+                  1
+                ],
+                [
+                  201,
+                  2
+                ],
+                [
+                  202,
+                  2
+                ],
+                [
+                  203,
+                  2
+                ],
+                [
+                  301,
+                  3
+                ]
+              ]
+            },
+            {
+              "name": "sales_lines",
+              "headers": [
+                "line_id",
+                "product_id",
+                "line_amount",
+                "status"
+              ],
+              "rows": [
+                [
+                  1,
+                  101,
+                  100,
+                  "Paid"
+                ],
+                [
+                  2,
+                  101,
+                  50,
+                  "Paid"
+                ],
+                [
+                  3,
+                  102,
+                  150,
+                  "Paid"
+                ],
+                [
+                  4,
+                  103,
+                  100,
+                  "Paid"
+                ],
+                [
+                  5,
+                  103,
+                  300,
+                  "Cancelled"
+                ],
+                [
+                  6,
+                  104,
+                  100,
+                  "Pending"
+                ],
+                [
+                  7,
+                  201,
+                  120,
+                  "Paid"
+                ],
+                [
+                  8,
+                  201,
+                  80,
+                  "Paid"
+                ],
+                [
+                  9,
+                  202,
+                  50,
+                  "Paid"
+                ],
+                [
+                  10,
+                  203,
+                  90,
+                  "Cancelled"
+                ],
+                [
+                  11,
+                  301,
+                  25,
+                  "Pending"
+                ]
+              ]
+            }
+          ],
+          "task": [
+            "Calculate total Paid revenue per product. Exclude products with no Paid sales and categories with no Paid sales.",
+            "For each included product, compute its percentage share of total Paid revenue in its own category: product revenue divided by category revenue multiplied by 100. Round the percentage to two decimal places.",
+            "Rank products within each category by revenue descending. Equal revenues must receive the same rank, and the next distinct revenue must receive the next consecutive rank (no gaps).",
+            "Display exactly category_id, product_id, revenue, revenue_share_pct, and revenue_rank. Sort by category_id ascending, revenue_rank ascending, then product_id ascending."
+          ],
+          "output": {
+            "headers": [
+              "category_id",
+              "product_id",
+              "revenue",
+              "revenue_share_pct",
+              "revenue_rank"
+            ],
+            "rows": [
+              [
+                1,
+                101,
+                150,
+                37.5,
+                1
+              ],
+              [
+                1,
+                102,
+                150,
+                37.5,
+                1
+              ],
+              [
+                1,
+                103,
+                100,
+                25,
+                2
+              ],
+              [
+                2,
+                201,
+                200,
+                80,
+                1
+              ],
+              [
+                2,
+                202,
+                50,
+                20,
+                2
+              ]
+            ]
+          },
+          "hint": "First aggregate Paid lines into one row per product using a CTE. Then use SUM(revenue) OVER (PARTITION BY category_id) for the denominator and DENSE_RANK() for ranking. Do not add product_id to the ranking window ORDER BY because equal revenues must tie.",
+          "solution": "WITH product_revenue AS (\n    SELECT p.category_id, p.product_id, SUM(s.line_amount) AS revenue\n    FROM catalog_products AS p\n    JOIN sales_lines AS s ON s.product_id = p.product_id\n    WHERE s.status = 'Paid'\n    GROUP BY p.category_id, p.product_id\n)\nSELECT category_id, product_id, revenue,\n       ROUND(100.0 * revenue / SUM(revenue) OVER (PARTITION BY category_id), 2) AS revenue_share_pct,\n       DENSE_RANK() OVER (PARTITION BY category_id ORDER BY revenue DESC) AS revenue_rank\nFROM product_revenue\nORDER BY category_id ASC, revenue_rank ASC, product_id ASC;",
+          "steps": [
+            "Filter to Paid sale lines before grouping. Products 104, 203 and 301 have no Paid lines, so they are excluded; category 3 disappears too.",
+            "The CTE sums Paid revenue per product: 101 = 100 + 50 = 150; 102 = 150; 103 = 100; 201 = 120 + 80 = 200; 202 = 50.",
+            "SUM(revenue) OVER (PARTITION BY category_id) repeats the category total on each row without collapsing the product rows. Category 1 totals 400; category 2 totals 250.",
+            "Divide each product revenue by its category total and multiply by 100: 150/400 = 37.50%, 100/400 = 25.00%, 200/250 = 80.00%, and 50/250 = 20.00%.",
+            "DENSE_RANK assigns products 101 and 102 rank 1 and product 103 rank 2 (not 3). Category 2 ranks restart at 1 for 201 and 2 for 202. The final ORDER BY breaks output ties by product_id without changing the ranks."
+          ],
+          "initial": "",
+          "solvedInitially": false
+        }
+      ]
     }
   ]
 }
